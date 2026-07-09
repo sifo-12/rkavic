@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RKAVIC JO12-1 Team Portal</title>
+    <!-- תמיכה בקריאת קבצי Excel ישירות מהדפדפן -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-orange: #ff8400; /* RKAVIC Orange */
+            --black: #1a1a1a;
+            --white: #ffffff;
+            --light-gray: #f7f9f8;
+            --border-color: #dddddd;
+            --win-green: #2e7d32;
+            --lose-red: #c62828;
+            --tie-gray: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--black);
+        }
+
+        /* Header Style */
+        header {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            border-bottom: 5px solid var(--primary-orange);
+        }
+
+        .header-logo {
+            height: 80px;
+            width: auto;
+        }
+
+        .header-text-container {
+            text-align: left;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            color: var(--white);
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            font-size: 1.1rem;
+            color: var(--primary-orange);
+            font-weight: bold;
+        }
+
+        /* 6:1 Ratio Pure CSS Stadium Banner Element */
+        .stadium-banner-6to1 {
+            width: 100%;
+            aspect-ratio: 6 / 1;
+            background: linear-gradient(135deg, #111111 0%, #222222 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 4px solid var(--primary-orange);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.7);
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 1rem;
+        }
+
+        .banner-title {
+            margin: 0;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: 5vw;
+            color: var(--primary-orange);
+            letter-spacing: 0.5vw;
+            text-transform: uppercase;
+            text-shadow: 0.3vw 0.3vw 0px var(--white), 0.5vw 0.5vw 0px rgba(0,0,0,0.5);
+            transform: skew(-6deg);
+            line-height: 1;
+        }
+
+        .banner-subtitle {
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--white);
+            font-size: 1.3vw;
+            font-weight: bold;
+            letter-spacing: 0.3vw;
+            margin-top: 0.5vw;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Card Component */
+        .section-card {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--black);
+        }
+
+        .section-card h2 {
+            color: var(--black);
+            margin-top: 0;
+            border-bottom: 3px solid var(--primary-orange);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Upcoming Match Highlight Box */
+        .upcoming-match-box {
+            background-color: var(--white);
+            border: 2px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .match-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .match-badge.home-badge {
+            background-color: var(--primary-orange);
+            color: var(--white);
+        }
+
+        .match-badge.away-badge {
+            background-color: var(--black);
+            color: var(--white);
+        }
+
+        .match-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .match-info-item strong {
+            display: block;
+            color: var(--black);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Volunteers list specific style */
+        .volunteers-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.95rem;
+        }
+        .volunteers-list li {
+            margin-bottom: 2px;
+        }
+
+        /* Maps Link Styling */
+        .maps-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .maps-link:hover {
+            text-decoration: underline;
+            color: var(--primary-orange);
+        }
+
+        /* Stats Grid Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background-color: var(--light-gray);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 3px solid #ccc;
+        }
+
+        .stat-card.stat-win { border-bottom-color: var(--win-green); }
+        .stat-card.stat-lose { border-bottom-color: var(--lose-red); }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: block;
+            color: var(--black);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Tables Formatting */
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 550px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        tr.highlighted-match-row {
+            background-color: #fff5eb !important;
+            font-weight: bold;
+        }
+
+        /* Dynamic Score Colors */
+        .score-win { color: var(--win-green); font-weight: bold; }
+        .score-lose { color: var(--lose-red); font-weight: bold; }
+        .score-tie { color: var(--tie-gray); font-weight: bold; }
+
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: var(--black);
+            color: var(--white);
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" alt="RKAVIC Logo" class="header-logo">
+        <div class="header-text-container">
+            <h1>RKAVIC Amstelveen</h1>
+            <p>TEAM PORTAL • JO12-1</p>
+        </div>
+    </header>
+
+    <div class="stadium-banner-6to1">
+        <h1 class="banner-title">RKAVIC</h1>
+        <div class="banner-subtitle">• RKAVIC AMSTELVEEN JO12-1 •</div>
+    </div>
+
+    <div class="container">
+
+        <div class="section-card">
+            <h2>⚽ Upcoming Match Details - <span id="target-match-date">Loading...</span></h2>
+            <div class="upcoming-match-box">
+                <span id="match-type-badge" class="match-badge">LOADING...</span>
+                <div class="match-details-grid">
+                    <div class="match-info-item">
+                        <strong>Opponent & Location</strong>
+                        <span id="match-opponent" style="font-weight: bold; font-size: 1.1rem;">Loading...</span> <br> 
+                        <span id="match-location">Loading...</span>
+                    </div>
+                    <div class="match-info-item">
+                        <strong>Timings</strong>
+                        Kick-off: <span id="match-kickoff">Loading...</span> <br> 
+                        Meet-up: <span id="match-meetup">Loading...</span>
+                    </div>
+                    <div class="match-info-item">
+                        <strong>Jersey Color</strong>
+                        <div id="match-jersey-container" style="margin-top: 5px;">Loading...</div>
+                    </div>
+                    <div class="match-info-item">
+                        <strong>Assigned Volunteers</strong>
+                        <ul id="match-volunteers" class="volunteers-list">Loading duties...</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>📊 Season Statistics Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-number" id="stats-played">0</span><span class="stat-label">Played</span></div>
+                <div class="stat-card stat-win"><span class="stat-number" style="color: var(--win-green)" id="stats-wins">0</span><span class="stat-label">Wins</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-ties">0</span><span class="stat-label">Ties</span></div>
+                <div class="stat-card stat-lose"><span class="stat-number" style="color: var(--lose-red)" id="stats-losses">0</span><span class="stat-label">Losses</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-gf">0</span><span class="stat-label">Goals For</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-ga">0</span><span class="stat-label">Goals Against</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-gd">0</span><span class="stat-label">Goal Diff</span></div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Matches Database</h2>
+            <p>Duties change depending on match type:</p>
+            <ul style="margin-bottom: 1.5rem; padding-left: 20px;">
+                <li><strong>Home Matches:</strong> Warm-up, Referee, Pitch prep, Lemonade.</li>
+                <li><strong>Away Matches:</strong> Warm-up, Balls Coordinator.</li>
+            </ul>
+
+            <div class="table-responsive">
+                <table id="roster-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Q</th>
+                            <th>League</th>
+                            <th>Date</th>
+                            <th>Opponent</th>
+                            <th>Match Type</th>
+                            <th>Score</th>
+                            <th>Coach</th>
+                            <th>Volunteers</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body-dynamic">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2026 RKAVIC JO12-1 Team Management. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const orangeJerseySVG = `
+            <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#ff8400" stroke="#1a1a1a" stroke-width="3"/>
+                <path d="M40,10 C45,18 55,18 60,10" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+                <rect x="48" y="30" width="4" height="40" fill="#ffffff"/>
+                <rect x="38" y="30" width="4" height="40" fill="#ffffff"/>
+                <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
+            </svg>`;
+
+        const blackJerseySVG = `
+            <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#1a1a1a" stroke="#ffffff" stroke-width="3"/>
+                <path d="M40,10 C45,18 55,18 60,10" fill="none" stroke="#ffffff" stroke-width="3"/>
+                <rect x="48" y="30" width="4" height="40" fill="#ffffff"/>
+                <rect x="38" y="30" width="4" height="40" fill="#ffffff"/>
+                <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
+            </svg>`;
+
+        // נתיב מקומי ישיר (מתוך התיקייה הנוכחית)
+        const excelFilePath = './Volunteers JO12_1 2026_27.xlsx';
+        
+        // עמודות התפקידים שנסרוק באקסל (כולל עמודת המאמן כעת)
+        const allRoles = ['Coach', 'Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
+        const volunteerRolesOnly = ['Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
+
+        function calculateMeetUpTime(kickOffStr) {
+            if (!kickOffStr || !kickOffStr.includes(":")) return "TBD";
+            const parts = kickOffStr.split(":");
+            let hours = parseInt(parts[0], 10);
+            let minutes = parseInt(parts[1], 10);
+            minutes -= 45;
+            if (minutes < 0) { minutes += 60; hours -= 1; if (hours < 0) hours += 24; }
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        function getValueIgnoreCase(row, keyName) {
+            if (!row) return "";
+            const targetKey = keyName.toLowerCase().replace(/[\s_-]/g, '');
+            for (let key in row) {
+                if (key.toLowerCase().replace(/[\s_-]/g, '') === targetKey) {
+                    return row[key];
+                }
+            }
+            return "";
+        }
+
+        function getMatchNumberFromRow(row) {
+            if (!row) return "";
+            let val = getValueIgnoreCase(row, 'Game');
+            if (val === "") val = row['#'] || Object.values(row)[0];
+            return String(val).trim();
+        }
+
+        // בניית רשימת התפקידים המלאה לחלונית העליונה (כולל המאמן)
+        function buildUpcomingVolunteersListHTML(excelRow) {
+            if (!excelRow) return "No staff assigned";
+            let lines = [];
+            allRoles.forEach(role => {
+                let val = getValueIgnoreCase(excelRow, role);
+                if (val && String(val).trim() !== "") {
+                    lines.push(`${role}: ${String(val).trim()}`);
+                }
+            });
+            return lines.join("<br>") || "No staff assigned";
+        }
+
+        // בניית מחרוזת טקסט למתנדבים בלבד עבור הטבלה התחתונה
+        function buildVolunteersTableText(excelRow) {
+            if (!excelRow) return "-";
+            let rolesArr = [];
+            volunteerRolesOnly.forEach(role => {
+                let val = getValueIgnoreCase(excelRow, role);
+                if (val && String(val).trim() !== "") {
+                    rolesArr.push(`${role}: ${String(val).trim()}`);
+                }
+            });
+            return rolesArr.join(", ") || "-";
+        }
+
+        async function loadExcelVolunteers() {
+            try {
+                const response = await fetch(excelFilePath);
+                if (!response.ok) throw new Error("Failed to fetch Excel file");
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                return XLSX.utils.sheet_to_json(worksheet);
+            } catch (error) {
+                console.error("Error loading Excel file:", error);
+                return [];
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            const excelRows = await loadExcelVolunteers();
+
+            fetch('next-match.json')
+                .then(response => response.json())
+                .then(data => {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+                    let played = 0, wins = 0, ties = 0, losses = 0, gf = 0, ga = 0;
+                    let tableHTMLRows = "";
+                    let matchedRowData = null;
+
+                    const sortedMatches = data.matches.sort((a, b) => a.date.localeCompare(b.date));
+                    matchedRowData = sortedMatches.find(match => match.date >= todayStr);
+                    
+                    if (!matchedRowData && sortedMatches.length > 0) {
+                        matchedRowData = sortedMatches[sortedMatches.length - 1];
+                    }
+
+                    sortedMatches.forEach(match => {
+                        const scoreText = match.score ? match.score.trim() : "-";
+                        let styledScore = scoreText;
+
+                        if (scoreText && scoreText !== "-") {
+                            const scores = scoreText.split("-").map(num => parseInt(num.trim(), 10));
+                            if (!isNaN(scores[0]) && !isNaN(scores[1])) {
+                                played++;
+                                const ourGoals = scores[0];
+                                const opponentGoals = scores[1];
+                                gf += ourGoals;
+                                ga += opponentGoals;
+
+                                if (ourGoals > opponentGoals) {
+                                    wins++;
+                                    styledScore = `<span class="score-win">${scoreText}</span>`;
+                                } else if (ourGoals < opponentGoals) {
+                                    losses++;
+                                    styledScore = `<span class="score-lose">${scoreText}</span>`;
+                                } else {
+                                    ties++;
+                                    styledScore = `<span class="score-tie">${scoreText}</span>`;
+                                }
+                            }
+                        }
+
+                        const excelMatch = excelRows.find(row => {
+                            return getMatchNumberFromRow(row) === String(match.number).trim();
+                        });
+
+                        const coachVal = excelMatch ? getValueIgnoreCase(excelMatch, 'Coach') : "";
+                        const matchCoach = coachVal && String(coachVal).trim() !== "" ? String(coachVal).trim() : "TBD";
+                        const matchVolunteersText = buildVolunteersTableText(excelMatch);
+
+                        const isCurrentMatch = matchedRowData && match.number === matchedRowData.number;
+                        const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
+
+                        tableHTMLRows += `
+                            <tr${rowClass}>
+                                <td>${match.number}</td>
+                                <td>${match.q}</td>
+                                <td>${match.league}</td>
+                                <td>${match.date}</td>
+                                <td>${match.opponent}</td>
+                                <td>${match.matchType}</td>
+                                <td>${styledScore}</td>
+                                <td>${matchCoach}</td>
+                                <td>${matchVolunteersText}</td>
+                            </tr>
+                        `;
+                    });
+
+                    document.getElementById("table-body-dynamic").innerHTML = tableHTMLRows;
+
+                    document.getElementById("stats-played").innerText = played;
+                    document.getElementById("stats-wins").innerText = wins;
+                    document.getElementById("stats-ties").innerText = ties;
+                    document.getElementById("stats-losses").innerText = losses;
+                    document.getElementById("stats-gf").innerText = gf;
+                    document.getElementById("stats-ga").innerText = ga;
+                    
+                    const diff = gf - ga;
+                    document.getElementById("stats-gd").innerText = diff > 0 ? `+${diff}` : diff;
+
+                    if (matchedRowData) {
+                        document.getElementById("target-match-date").innerText = `Match day ${matchedRowData.number} - ${matchedRowData.date}`;
+                        document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
+                        document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
+                        document.getElementById("match-opponent").innerText = matchedRowData.opponent;
+
+                        const currentExcelMatch = excelRows.find(row => {
+                            return getMatchNumberFromRow(row) === String(matchedRowData.number).trim();
+                        });
+                        
+                        // כאן מתבצעת ההזרקה המעודכנת הכוללת את המאמן ברשימה העליונה
+                        document.getElementById("match-volunteers").innerHTML = buildUpcomingVolunteersListHTML(currentExcelMatch);
+
+                        const badgeElement = document.getElementById("match-type-badge");
+                        const jerseyContainer = document.getElementById("match-jersey-container");
+                        const locationElement = document.getElementById("match-location");
+                        const addressText = matchedRowData.address || "";
+
+                        if (matchedRowData.matchType.toLowerCase() === "home") {
+                            badgeElement.innerText = "HOME GAME";
+                            badgeElement.className = "match-badge home-badge";
+                            jerseyContainer.innerHTML = orangeJerseySVG;
+                            locationElement.innerHTML = `<a href="https://maps.google.com/?q=RKAVIC+Amstelveen" target="_blank" class="maps-link">📍 RKAVIC Amstelveen</a>`;
+                        } else {
+                            badgeElement.innerText = "AWAY GAME";
+                            badgeElement.className = "match-badge away-badge";
+                            jerseyContainer.innerHTML = blackJerseySVG;
+                            
+                            if (addressText) {
+                                const encodedAddress = encodeURIComponent(addressText);
+                                locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodedAddress}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
+                            } else {
+                                locationElement.innerText = "Address TBD";
+                            }
+                        }
+                    } else {
+                        document.getElementById("target-match-date").innerText = "No upcoming matches";
+                        document.getElementById("match-type-badge").innerText = "N/A";
+                    }
+                })
+                .catch(err => console.error("Database initialization error:", err));
+        });
+    </script>
+</body>
+</html>
