@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RKAVIC JO12-1 Team Portal</title>
-    <!-- תמיכה בקריאת קבצי Excel ישירות מהדפדפן -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -27,8 +26,34 @@
             color: var(--black);
         }
 
+        /* Language Switcher Button Style - Left Top Corner */
+        .lang-switcher {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn:hover {
+            background-color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+
         /* Header Style */
         header {
+            position: relative;
             background-color: var(--black);
             color: var(--white);
             padding: 1.5rem;
@@ -282,6 +307,9 @@
 <body>
 
     <header>
+        <div class="lang-switcher">
+            <button class="lang-btn" onclick="toggleLanguage()" id="lang-toggle-btn">NL</button>
+        </div>
         <img src="logo.png" alt="RKAVIC Logo" class="header-logo">
         <div class="header-text-container">
             <h1>RKAVIC Amstelveen</h1>
@@ -297,51 +325,51 @@
     <div class="container">
 
         <div class="section-card">
-            <h2>⚽ Upcoming Match Details - <span id="target-match-date">Loading...</span></h2>
+            <h2>⚽ <span id="lbl-upcoming-title">Upcoming Match Details</span> - <span id="target-match-date">Loading...</span></h2>
             <div class="upcoming-match-box">
                 <span id="match-type-badge" class="match-badge">LOADING...</span>
                 <div class="match-details-grid">
                     <div class="match-info-item">
-                        <strong>Opponent & Location</strong>
+                        <strong id="lbl-opponent-loc">Opponent & Location</strong>
                         <span id="match-opponent" style="font-weight: bold; font-size: 1.1rem;">Loading...</span> <br> 
                         <span id="match-location">Loading...</span>
                     </div>
                     <div class="match-info-item">
-                        <strong>Timings</strong>
-                        Kick-off: <span id="match-kickoff">Loading...</span> <br> 
-                        Meet-up: <span id="match-meetup">Loading...</span>
+                        <strong id="lbl-timings">Timings</strong>
+                        <span id="lbl-kickoff">Kick-off</span>: <span id="match-kickoff">Loading...</span> <br> 
+                        <span id="lbl-meetup">Meet-up</span>: <span id="match-meetup">Loading...</span>
                     </div>
                     <div class="match-info-item">
-                        <strong>Jersey Color</strong>
+                        <strong id="lbl-jersey">Jersey Color</strong>
                         <div id="match-jersey-container" style="margin-top: 5px;">Loading...</div>
                     </div>
                     <div class="match-info-item">
-                        <strong>Assigned Volunteers</strong>
-                        <ul id="match-volunteers" class="volunteers-list">Loading duties...</ul>
+                        <strong id="lbl-volunteers">Assigned Volunteers</strong>
+                        <div id="match-volunteers" style="font-size: 0.95rem;">Loading duties...</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="section-card">
-            <h2>📊 Season Statistics Dashboard</h2>
+            <h2>📊 <span id="lbl-stats-title">Season Statistics Dashboard</span></h2>
             <div class="stats-grid">
-                <div class="stat-card"><span class="stat-number" id="stats-played">0</span><span class="stat-label">Played</span></div>
-                <div class="stat-card stat-win"><span class="stat-number" style="color: var(--win-green)" id="stats-wins">0</span><span class="stat-label">Wins</span></div>
-                <div class="stat-card"><span class="stat-number" id="stats-ties">0</span><span class="stat-label">Ties</span></div>
-                <div class="stat-card stat-lose"><span class="stat-number" style="color: var(--lose-red)" id="stats-losses">0</span><span class="stat-label">Losses</span></div>
-                <div class="stat-card"><span class="stat-number" id="stats-gf">0</span><span class="stat-label">Goals For</span></div>
-                <div class="stat-card"><span class="stat-number" id="stats-ga">0</span><span class="stat-label">Goals Against</span></div>
-                <div class="stat-card"><span class="stat-number" id="stats-gd">0</span><span class="stat-label">Goal Diff</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-played">0</span><span class="stat-label" id="lbl-stat-played">Played</span></div>
+                <div class="stat-card stat-win"><span class="stat-number" style="color: var(--win-green)" id="stats-wins">0</span><span class="stat-label" id="lbl-stat-wins">Wins</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-ties">0</span><span class="stat-label" id="lbl-stat-ties">Ties</span></div>
+                <div class="stat-card stat-lose"><span class="stat-number" style="color: var(--lose-red)" id="stats-losses">0</span><span class="stat-label" id="lbl-stat-losses">Losses</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-gf">0</span><span class="stat-label" id="lbl-stat-gf">Goals For</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-ga">0</span><span class="stat-label" id="lbl-stat-ga">Goals Against</span></div>
+                <div class="stat-card"><span class="stat-number" id="stats-gd">0</span><span class="stat-label" id="lbl-stat-gd">Goal Diff</span></div>
             </div>
         </div>
 
         <div class="section-card">
-            <h2>Matches Database</h2>
-            <p>Duties change depending on match type:</p>
-            <ul style="margin-bottom: 1.5rem; padding-left: 20px;">
-                <li><strong>Home Matches:</strong> Warm-up, Referee, Pitch prep, Lemonade.</li>
-                <li><strong>Away Matches:</strong> Warm-up, Balls Coordinator.</li>
+            <h2><span id="lbl-db-title">Matches Database</span></h2>
+            <p id="lbl-db-desc">Duties change depending on match type:</p>
+            <ul style="margin-bottom: 1.5rem; padding-left: 20px;" id="lbl-db-list">
+                <li><strong>Home Matches:</strong> Game Referee, Field Setup Support, Half-Time Lemonade.</li>
+                <li><strong>Away Matches:</strong> Fruit / Snacks, Balls Coordinator.</li>
             </ul>
 
             <div class="table-responsive">
@@ -349,14 +377,14 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Q</th>
-                            <th>League</th>
-                            <th>Date</th>
-                            <th>Opponent</th>
-                            <th>Match Type</th>
-                            <th>Score</th>
-                            <th>Coach</th>
-                            <th>Volunteers</th>
+                            <th id="th-q">Q</th>
+                            <th id="th-league">League</th>
+                            <th id="th-date">Date</th>
+                            <th id="th-opponent">Opponent</th>
+                            <th id="th-type">Match Type</th>
+                            <th id="th-score">Score</th>
+                            <th id="th-coach">Coach</th>
+                            <th id="th-volunteers">Volunteers</th>
                         </tr>
                     </thead>
                     <tbody id="table-body-dynamic">
@@ -372,6 +400,94 @@
     </footer>
 
     <script>
+        // Dictionary מילון תרגומים לשפות
+        const translations = {
+            en: {
+                upcomingTitle: "Upcoming Match Details",
+                opponentLoc: "Opponent & Location",
+                timings: "Timings",
+                kickoff: "Kick-off",
+                meetup: "Meet-up",
+                jersey: "Jersey Color",
+                volunteers: "Assigned Volunteers",
+                statsTitle: "Season Statistics Dashboard",
+                played: "Played",
+                wins: "Wins",
+                ties: "Ties",
+                losses: "Losses",
+                gf: "Goals For",
+                ga: "Goals Against",
+                gd: "Goal Diff",
+                dbTitle: "Matches Database",
+                dbDesc: "Duties change depending on match type:",
+                dbList: "<li><strong>Home Matches:</strong> Game Referee, Field Setup Support, Half-Time Lemonade.</li><li><strong>Away Matches:</strong> Fruit / Snacks, Balls Coordinator.</li>",
+                thQ: "Q",
+                thLeague: "League",
+                thDate: "Date",
+                thOpponent: "Opponent",
+                thType: "Match Type",
+                thScore: "Score",
+                thCoach: "Coach",
+                thVolunteers: "Volunteers",
+                homeGame: "HOME GAME",
+                awayGame: "AWAY GAME",
+                noMatches: "No upcoming matches",
+                noStaff: "No staff assigned"
+            },
+            nl: {
+                upcomingTitle: "Details Volgende Wedstrijd",
+                opponentLoc: "Tegenstander & Locatie",
+                timings: "Tijdstippen",
+                kickoff: "Aftrap",
+                meetup: "Verzamelen",
+                jersey: "Kleur Shirt",
+                volunteers: "Toegewezen Vrijwilligers",
+                statsTitle: "Seizoensstatistieken Dashboard",
+                played: "Gespeeld",
+                wins: "Gewonnen",
+                ties: "Gelijk",
+                losses: "Verloren",
+                gf: "Doelpunten Voor",
+                ga: "Doelpunten Tegen",
+                gd: "Doelsaldo",
+                dbTitle: "Wedstrijden Database",
+                dbDesc: "Taken verschillen per type wedstrijd:",
+                dbList: "<li><strong>Thuiswedstrijden:</strong> Scheidsrechter, Veldoorwacht, Limonade in de rust.</li><li><strong>Uitwedstrijden:</strong> Fruit / Snacks, Ballen Coordinator.</li>",
+                thQ: "K",
+                thLeague: "Competitie",
+                thDate: "Datum",
+                thOpponent: "Tegenstander",
+                thType: "Type",
+                thScore: "Uitslag",
+                thCoach: "Coach",
+                thVolunteers: "Vrijwilligers",
+                homeGame: "THUISWEDSTRIJD",
+                awayGame: "UITWEDSTRIJD",
+                noMatches: "Geen aankomende wedstrijden",
+                noStaff: "Geen vrijwilligers ingedeeld"
+            }
+        };
+
+        // מילון מונחים דינמיים לתרגום מהאקסל והג'ייסון
+        const dynamicTranslations = {
+            roleNL: {
+                'Coach': 'Coach',
+                'Warm-Up': 'Warming-up',
+                'Referee': 'Scheidsrechter',
+                'Pitch Prep': 'Veldoorwacht',
+                'Lemonade': 'Limonade',
+                'Balls': 'Ballen'
+            },
+            typeNL: {
+                'Home': 'Thuis',
+                'Away': 'Uit'
+            }
+        };
+
+        let currentLang = 'en'; // שפת ברירת מחדל
+        let globalExcelRows = [];
+        let globalMatchData = null;
+
         const orangeJerseySVG = `
             <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#ff8400" stroke="#1a1a1a" stroke-width="3"/>
@@ -390,10 +506,7 @@
                 <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
             </svg>`;
 
-        // נתיב מקומי ישיר (מתוך התיקייה הנוכחית)
         const excelFilePath = './Volunteers JO12_1 2026_27.xlsx';
-        
-        // עמודות התפקידים שנסרוק באקסל (כולל עמודת המאמן כעת)
         const allRoles = ['Coach', 'Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
         const volunteerRolesOnly = ['Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
 
@@ -425,30 +538,77 @@
             return String(val).trim();
         }
 
-        // בניית רשימת התפקידים המלאה לחלונית העליונה (כולל המאמן)
+        // תרגום שם התפקיד לפי השפה שנבחרה
+        function translateRoleName(role) {
+            if (currentLang === 'nl' && dynamicTranslations.roleNL[role]) {
+                return dynamicTranslations.roleNL[role];
+            }
+            return role;
+        }
+
         function buildUpcomingVolunteersListHTML(excelRow) {
-            if (!excelRow) return "No staff assigned";
+            if (!excelRow) return translations[currentLang].noStaff;
             let lines = [];
             allRoles.forEach(role => {
                 let val = getValueIgnoreCase(excelRow, role);
                 if (val && String(val).trim() !== "") {
-                    lines.push(`${role}: ${String(val).trim()}`);
+                    lines.push(`<strong>${translateRoleName(role)}:</strong> ${String(val).trim()}`);
                 }
             });
-            return lines.join("<br>") || "No staff assigned";
+            return lines.join("<br>") || translations[currentLang].noStaff;
         }
 
-        // בניית מחרוזת טקסט למתנדבים בלבד עבור הטבלה התחתונה
         function buildVolunteersTableText(excelRow) {
             if (!excelRow) return "-";
             let rolesArr = [];
             volunteerRolesOnly.forEach(role => {
                 let val = getValueIgnoreCase(excelRow, role);
                 if (val && String(val).trim() !== "") {
-                    rolesArr.push(`${role}: ${String(val).trim()}`);
+                    rolesArr.push(`${translateRoleName(role)}: ${String(val).trim()}`);
                 }
             });
             return rolesArr.join(", ") || "-";
+        }
+
+        // פונקציה שמחליפה את השפה ומעדכנת את כל ה-UI
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'nl' : 'en';
+            document.getElementById("lang-toggle-btn").innerText = currentLang === 'en' ? 'NL' : 'EN';
+            
+            // עדכון תוויות קבועות
+            const t = translations[currentLang];
+            document.getElementById("lbl-upcoming-title").innerText = t.upcomingTitle;
+            document.getElementById("lbl-opponent-loc").innerText = t.opponentLoc;
+            document.getElementById("lbl-timings").innerText = t.timings;
+            document.getElementById("lbl-kickoff").innerText = t.kickoff;
+            document.getElementById("lbl-meetup").innerText = t.meetup;
+            document.getElementById("lbl-jersey").innerText = t.jersey;
+            document.getElementById("lbl-volunteers").innerText = t.volunteers;
+            document.getElementById("lbl-stats-title").innerText = t.statsTitle;
+            document.getElementById("lbl-stat-played").innerText = t.played;
+            document.getElementById("lbl-stat-wins").innerText = t.wins;
+            document.getElementById("lbl-stat-ties").innerText = t.ties;
+            document.getElementById("lbl-stat-losses").innerText = t.losses;
+            document.getElementById("lbl-stat-gf").innerText = t.gf;
+            document.getElementById("lbl-stat-ga").innerText = t.ga;
+            document.getElementById("lbl-stat-gd").innerText = t.gd;
+            document.getElementById("lbl-db-title").innerText = t.dbTitle;
+            document.getElementById("lbl-db-desc").innerText = t.dbDesc;
+            document.getElementById("lbl-db-list").innerHTML = t.dbList;
+            
+            document.getElementById("th-q").innerText = t.thQ;
+            document.getElementById("th-league").innerText = t.thLeague;
+            document.getElementById("th-date").innerText = t.thDate;
+            document.getElementById("th-opponent").innerText = t.thOpponent;
+            document.getElementById("th-type").innerText = t.thType;
+            document.getElementById("th-score").innerText = t.thScore;
+            document.getElementById("th-coach").innerText = t.thCoach;
+            document.getElementById("th-volunteers").innerText = t.thVolunteers;
+
+            // רינדור מחדש של הנתונים הדינמיים
+            if (globalMatchData) {
+                renderUI(globalMatchData);
+            }
         }
 
         async function loadExcelVolunteers() {
@@ -466,132 +626,142 @@
             }
         }
 
+        function renderUI(data) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            let played = 0, wins = 0, ties = 0, losses = 0, gf = 0, ga = 0;
+            let tableHTMLRows = "";
+            let matchedRowData = null;
+
+            const sortedMatches = data.matches.sort((a, b) => a.date.localeCompare(b.date));
+            matchedRowData = sortedMatches.find(match => match.date >= todayStr);
+            
+            if (!matchedRowData && sortedMatches.length > 0) {
+                matchedRowData = sortedMatches[sortedMatches.length - 1];
+            }
+
+            sortedMatches.forEach(match => {
+                const scoreText = match.score ? match.score.trim() : "-";
+                let styledScore = scoreText;
+
+                if (scoreText && scoreText !== "-") {
+                    const scores = scoreText.split("-").map(num => parseInt(num.trim(), 10));
+                    if (!isNaN(scores[0]) && !isNaN(scores[1])) {
+                        played++;
+                        const ourGoals = scores[0];
+                        const opponentGoals = scores[1];
+                        gf += ourGoals;
+                        ga += opponentGoals;
+
+                        if (ourGoals > opponentGoals) {
+                            wins++;
+                            styledScore = `<span class="score-win">${scoreText}</span>`;
+                        } else if (ourGoals < opponentGoals) {
+                            losses++;
+                            styledScore = `<span class="score-lose">${scoreText}</span>`;
+                        } else {
+                            ties++;
+                            styledScore = `<span class="score-tie">${scoreText}</span>`;
+                        }
+                    }
+                }
+
+                const excelMatch = globalExcelRows.find(row => {
+                    return getMatchNumberFromRow(row) === String(match.number).trim();
+                });
+
+                const coachVal = excelMatch ? getValueIgnoreCase(excelMatch, 'Coach') : "";
+                const matchCoach = coachVal && String(coachVal).trim() !== "" ? String(coachVal).trim() : "TBD";
+                const matchVolunteersText = buildVolunteersTableText(excelMatch);
+
+                const isCurrentMatch = matchedRowData && match.number === matchedRowData.number;
+                const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
+
+                // תרגום סוג המשחק בתוך הטבלה
+                let displayType = match.matchType;
+                if (currentLang === 'nl' && dynamicTranslations.typeNL[match.matchType]) {
+                    displayType = dynamicTranslations.typeNL[match.matchType];
+                }
+
+                tableHTMLRows += `
+                    <tr${rowClass}>
+                        <td>${match.number}</td>
+                        <td>${match.q}</td>
+                        <td>${match.league}</td>
+                        <td>${match.date}</td>
+                        <td>${match.opponent}</td>
+                        <td>${displayType}</td>
+                        <td>${styledScore}</td>
+                        <td>${matchCoach}</td>
+                        <td>${matchVolunteersText}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("table-body-dynamic").innerHTML = tableHTMLRows;
+            document.getElementById("stats-played").innerText = played;
+            document.getElementById("stats-wins").innerText = wins;
+            document.getElementById("stats-ties").innerText = ties;
+            document.getElementById("stats-losses").innerText = losses;
+            document.getElementById("stats-gf").innerText = gf;
+            document.getElementById("stats-ga").innerText = ga;
+            
+            const diff = gf - ga;
+            document.getElementById("stats-gd").innerText = diff > 0 ? `+${diff}` : diff;
+
+            if (matchedRowData) {
+                // שינוי פורמט הכותרת העליונה לפי הבקשה הקודמת
+                document.getElementById("target-match-date").innerText = `Match day ${matchedRowData.number} - ${matchedRowData.date}`;
+                document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
+                document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
+                document.getElementById("match-opponent").innerText = matchedRowData.opponent;
+
+                const currentExcelMatch = globalExcelRows.find(row => {
+                    return getMatchNumberFromRow(row) === String(matchedRowData.number).trim();
+                });
+                
+                document.getElementById("match-volunteers").innerHTML = buildUpcomingVolunteersListHTML(currentExcelMatch);
+
+                const badgeElement = document.getElementById("match-type-badge");
+                const jerseyContainer = document.getElementById("match-jersey-container");
+                const locationElement = document.getElementById("match-location");
+                const addressText = matchedRowData.address || "";
+
+                if (matchedRowData.matchType.toLowerCase() === "home") {
+                    badgeElement.innerText = translations[currentLang].homeGame;
+                    badgeElement.className = "match-badge home-badge";
+                    jerseyContainer.innerHTML = orangeJerseySVG;
+                    locationElement.innerHTML = `<a href="https://maps.google.com/?q=RKAVIC+Amstelveen" target="_blank" class="maps-link">📍 RKAVIC Amstelveen</a>`;
+                } else {
+                    badgeElement.innerText = translations[currentLang].awayGame;
+                    badgeElement.className = "match-badge away-badge";
+                    jerseyContainer.innerHTML = blackJerseySVG;
+                    
+                    if (addressText) {
+                        const encodedAddress = encodeURIComponent(addressText);
+                        locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodedAddress}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
+                    } else {
+                        locationElement.innerText = "Address TBD";
+                    }
+                }
+            } else {
+                document.getElementById("target-match-date").innerText = translations[currentLang].noMatches;
+                document.getElementById("match-type-badge").innerText = "N/A";
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", async function() {
-            const excelRows = await loadExcelVolunteers();
+            globalExcelRows = await loadExcelVolunteers();
 
             fetch('next-match.json')
                 .then(response => response.json())
                 .then(data => {
-                    const today = new Date();
-                    const yyyy = today.getFullYear();
-                    const mm = String(today.getMonth() + 1).padStart(2, '0');
-                    const dd = String(today.getDate()).padStart(2, '0');
-                    const todayStr = `${yyyy}-${mm}-${dd}`;
-
-                    let played = 0, wins = 0, ties = 0, losses = 0, gf = 0, ga = 0;
-                    let tableHTMLRows = "";
-                    let matchedRowData = null;
-
-                    const sortedMatches = data.matches.sort((a, b) => a.date.localeCompare(b.date));
-                    matchedRowData = sortedMatches.find(match => match.date >= todayStr);
-                    
-                    if (!matchedRowData && sortedMatches.length > 0) {
-                        matchedRowData = sortedMatches[sortedMatches.length - 1];
-                    }
-
-                    sortedMatches.forEach(match => {
-                        const scoreText = match.score ? match.score.trim() : "-";
-                        let styledScore = scoreText;
-
-                        if (scoreText && scoreText !== "-") {
-                            const scores = scoreText.split("-").map(num => parseInt(num.trim(), 10));
-                            if (!isNaN(scores[0]) && !isNaN(scores[1])) {
-                                played++;
-                                const ourGoals = scores[0];
-                                const opponentGoals = scores[1];
-                                gf += ourGoals;
-                                ga += opponentGoals;
-
-                                if (ourGoals > opponentGoals) {
-                                    wins++;
-                                    styledScore = `<span class="score-win">${scoreText}</span>`;
-                                } else if (ourGoals < opponentGoals) {
-                                    losses++;
-                                    styledScore = `<span class="score-lose">${scoreText}</span>`;
-                                } else {
-                                    ties++;
-                                    styledScore = `<span class="score-tie">${scoreText}</span>`;
-                                }
-                            }
-                        }
-
-                        const excelMatch = excelRows.find(row => {
-                            return getMatchNumberFromRow(row) === String(match.number).trim();
-                        });
-
-                        const coachVal = excelMatch ? getValueIgnoreCase(excelMatch, 'Coach') : "";
-                        const matchCoach = coachVal && String(coachVal).trim() !== "" ? String(coachVal).trim() : "TBD";
-                        const matchVolunteersText = buildVolunteersTableText(excelMatch);
-
-                        const isCurrentMatch = matchedRowData && match.number === matchedRowData.number;
-                        const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
-
-                        tableHTMLRows += `
-                            <tr${rowClass}>
-                                <td>${match.number}</td>
-                                <td>${match.q}</td>
-                                <td>${match.league}</td>
-                                <td>${match.date}</td>
-                                <td>${match.opponent}</td>
-                                <td>${match.matchType}</td>
-                                <td>${styledScore}</td>
-                                <td>${matchCoach}</td>
-                                <td>${matchVolunteersText}</td>
-                            </tr>
-                        `;
-                    });
-
-                    document.getElementById("table-body-dynamic").innerHTML = tableHTMLRows;
-
-                    document.getElementById("stats-played").innerText = played;
-                    document.getElementById("stats-wins").innerText = wins;
-                    document.getElementById("stats-ties").innerText = ties;
-                    document.getElementById("stats-losses").innerText = losses;
-                    document.getElementById("stats-gf").innerText = gf;
-                    document.getElementById("stats-ga").innerText = ga;
-                    
-                    const diff = gf - ga;
-                    document.getElementById("stats-gd").innerText = diff > 0 ? `+${diff}` : diff;
-
-                    if (matchedRowData) {
-                        document.getElementById("target-match-date").innerText = `Match day ${matchedRowData.number} - ${matchedRowData.date}`;
-                        document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
-                        document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
-                        document.getElementById("match-opponent").innerText = matchedRowData.opponent;
-
-                        const currentExcelMatch = excelRows.find(row => {
-                            return getMatchNumberFromRow(row) === String(matchedRowData.number).trim();
-                        });
-                        
-                        // כאן מתבצעת ההזרקה המעודכנת הכוללת את המאמן ברשימה העליונה
-                        document.getElementById("match-volunteers").innerHTML = buildUpcomingVolunteersListHTML(currentExcelMatch);
-
-                        const badgeElement = document.getElementById("match-type-badge");
-                        const jerseyContainer = document.getElementById("match-jersey-container");
-                        const locationElement = document.getElementById("match-location");
-                        const addressText = matchedRowData.address || "";
-
-                        if (matchedRowData.matchType.toLowerCase() === "home") {
-                            badgeElement.innerText = "HOME GAME";
-                            badgeElement.className = "match-badge home-badge";
-                            jerseyContainer.innerHTML = orangeJerseySVG;
-                            locationElement.innerHTML = `<a href="https://maps.google.com/?q=RKAVIC+Amstelveen" target="_blank" class="maps-link">📍 RKAVIC Amstelveen</a>`;
-                        } else {
-                            badgeElement.innerText = "AWAY GAME";
-                            badgeElement.className = "match-badge away-badge";
-                            jerseyContainer.innerHTML = blackJerseySVG;
-                            
-                            if (addressText) {
-                                const encodedAddress = encodeURIComponent(addressText);
-                                locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodedAddress}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
-                            } else {
-                                locationElement.innerText = "Address TBD";
-                            }
-                        }
-                    } else {
-                        document.getElementById("target-match-date").innerText = "No upcoming matches";
-                        document.getElementById("match-type-badge").innerText = "N/A";
-                    }
+                    globalMatchData = data;
+                    renderUI(data);
                 })
                 .catch(err => console.error("Database initialization error:", err));
         });
