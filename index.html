@@ -313,13 +313,13 @@
         <img src="logo.png" alt="RKAVIC Logo" class="header-logo">
         <div class="header-text-container">
             <h1>RKAVIC Amstelveen</h1>
-            <p>TEAM PORTAL • JO12-1</p>
+            <p>TEAM PORTAL • <span id="header-team-name">JO12-1</span></p>
         </div>
     </header>
 
     <div class="stadium-banner-6to1">
         <h1 class="banner-title">RKAVIC</h1>
-        <div class="banner-subtitle">• RKAVIC AMSTELVEEN JO12-1 •</div>
+        <div class="banner-subtitle">• RKAVIC AMSTELVEEN <span id="banner-team-name">JO12-1</span> •</div>
     </div>
 
     <div class="container">
@@ -340,7 +340,7 @@
                         <span id="lbl-meetup">Meet-up</span>: <span id="match-meetup">Loading...</span>
                     </div>
                     <div class="match-info-item">
-                        <strong id="lbl-jersey">Jersey Color</strong>
+                        <strong><span id="lbl-jersey">Jersey Color</span></strong>
                         <div id="match-jersey-container" style="margin-top: 5px;">Loading...</div>
                     </div>
                     <div class="match-info-item">
@@ -400,7 +400,7 @@
     </footer>
 
     <script>
-        // Dictionary מילון תרגומים לשפות
+        // מילון תרגומים לשפות
         const translations = {
             en: {
                 upcomingTitle: "Upcoming Match Details",
@@ -468,7 +468,6 @@
             }
         };
 
-        // מילון מונחים דינמיים לתרגום מהאקסל והג'ייסון
         const dynamicTranslations = {
             roleNL: {
                 'Coach': 'Coach',
@@ -484,9 +483,12 @@
             }
         };
 
-        let currentLang = 'en'; // שפת ברירת מחדל
+        let currentLang = 'en'; 
         let globalExcelRows = [];
         let globalMatchData = null;
+
+        // הגדרת משתנה הקבוצה המרכזי
+        const currentTeam = "JO12-1"; 
 
         const orangeJerseySVG = `
             <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -506,7 +508,10 @@
                 <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
             </svg>`;
 
-        const excelFilePath = './Volunteers JO12_1 2026_27.xlsx';
+        // נתיבים דינמיים שמובילים ישירות לתוך תיקיית הקבוצה
+        const excelFilePath = `./${currentTeam}/Volunteers JO12_1 2026_27.xlsx`;
+        const jsonFilePath = `./${currentTeam}/next-match.json`;
+        
         const allRoles = ['Coach', 'Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
         const volunteerRolesOnly = ['Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
 
@@ -538,7 +543,6 @@
             return String(val).trim();
         }
 
-        // תרגום שם התפקיד לפי השפה שנבחרה
         function translateRoleName(role) {
             if (currentLang === 'nl' && dynamicTranslations.roleNL[role]) {
                 return dynamicTranslations.roleNL[role];
@@ -570,12 +574,10 @@
             return rolesArr.join(", ") || "-";
         }
 
-        // פונקציה שמחליפה את השפה ומעדכנת את כל ה-UI
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'nl' : 'en';
             document.getElementById("lang-toggle-btn").innerText = currentLang === 'en' ? 'NL' : 'EN';
             
-            // עדכון תוויות קבועות
             const t = translations[currentLang];
             document.getElementById("lbl-upcoming-title").innerText = t.upcomingTitle;
             document.getElementById("lbl-opponent-loc").innerText = t.opponentLoc;
@@ -605,7 +607,6 @@
             document.getElementById("th-coach").innerText = t.thCoach;
             document.getElementById("th-volunteers").innerText = t.thVolunteers;
 
-            // רינדור מחדש של הנתונים הדינמיים
             if (globalMatchData) {
                 renderUI(globalMatchData);
             }
@@ -681,7 +682,6 @@
                 const isCurrentMatch = matchedRowData && match.number === matchedRowData.number;
                 const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
 
-                // תרגום סוג המשחק בתוך הטבלה
                 let displayType = match.matchType;
                 if (currentLang === 'nl' && dynamicTranslations.typeNL[match.matchType]) {
                     displayType = dynamicTranslations.typeNL[match.matchType];
@@ -714,7 +714,6 @@
             document.getElementById("stats-gd").innerText = diff > 0 ? `+${diff}` : diff;
 
             if (matchedRowData) {
-                // שינוי פורמט הכותרת העליונה לפי הבקשה הקודמת
                 document.getElementById("target-match-date").innerText = `Match day ${matchedRowData.number} - ${matchedRowData.date}`;
                 document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
                 document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
@@ -755,9 +754,13 @@
         }
 
         document.addEventListener("DOMContentLoaded", async function() {
+            // עדכון כותרות הקבוצה באופן דינמי לפי המשתנה המרכזי
+            document.getElementById("header-team-name").innerText = currentTeam;
+            document.getElementById("banner-team-name").innerText = currentTeam;
+
             globalExcelRows = await loadExcelVolunteers();
 
-            fetch('next-match.json')
+            fetch(jsonFilePath)
                 .then(response => response.json())
                 .then(data => {
                     globalMatchData = data;
