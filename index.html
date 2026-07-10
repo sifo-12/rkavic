@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RKAVIC JO12-1 Team Portal</title>
+    <title>RKAVIC Team Portal</title>
+    <!-- תמיכה בקריאת קבצי Excel ישירות מהדפדפן -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -313,13 +314,13 @@
         <img src="logo.png" alt="RKAVIC Logo" class="header-logo">
         <div class="header-text-container">
             <h1>RKAVIC Amstelveen</h1>
-            <p>TEAM PORTAL • <span id="header-team-name">JO12-1</span></p>
+            <p>TEAM PORTAL • <span id="header-team-name">Loading...</span></p>
         </div>
     </header>
 
     <div class="stadium-banner-6to1">
         <h1 class="banner-title">RKAVIC</h1>
-        <div class="banner-subtitle">• RKAVIC AMSTELVEEN <span id="banner-team-name">JO12-1</span> •</div>
+        <div class="banner-subtitle">• RKAVIC AMSTELVEEN <span id="banner-team-name">Loading...</span> •</div>
     </div>
 
     <div class="container">
@@ -396,11 +397,10 @@
     </div>
 
     <footer>
-        <p>© 2026 RKAVIC JO12-1 Team Management. All rights reserved.</p>
+        <p>© 2026 RKAVIC Team Management. All rights reserved.</p>
     </footer>
 
     <script>
-        // מילון תרגומים לשפות
         const translations = {
             en: {
                 upcomingTitle: "Upcoming Match Details",
@@ -487,8 +487,9 @@
         let globalExcelRows = [];
         let globalMatchData = null;
 
-        // הגדרת משתנה הקבוצה המרכזי
-        const currentTeam = "JO12-1"; 
+        // מנגנון חילוץ שם הקבוצה ישירות מה-URL (לדוגמה ?team=JO12-1). ברירת מחדל: JO12-1
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentTeam = urlParams.get('team') || "JO12-1"; 
 
         const orangeJerseySVG = `
             <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -508,7 +509,7 @@
                 <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
             </svg>`;
 
-        // נתיבים דינמיים שמובילים ישירות לתוך תיקיית הקבוצה
+        // יצירת נתיב מותאם דינמית לקובץ האקסל המצוי בתוך תיקיית הקבוצה
         const excelFilePath = `./${currentTeam}/Volunteers JO12_1 2026_27.xlsx`;
         const jsonFilePath = `./${currentTeam}/next-match.json`;
         
@@ -536,9 +537,11 @@
             return "";
         }
 
+        // שיפור מנגנון זיהוי מפתח המשחק באקסל כדי לתמוך במבנה משתנה של קבוצות אחרות
         function getMatchNumberFromRow(row) {
             if (!row) return "";
             let val = getValueIgnoreCase(row, 'Game');
+            if (val === "") val = getValueIgnoreCase(row, 'Match');
             if (val === "") val = row['#'] || Object.values(row)[0];
             return String(val).trim();
         }
@@ -754,7 +757,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", async function() {
-            // עדכון כותרות הקבוצה באופן דינמי לפי המשתנה המרכזי
+            // עדכון כותרות לפי הקבוצה שמגיעה מה-URL
             document.getElementById("header-team-name").innerText = currentTeam;
             document.getElementById("banner-team-name").innerText = currentTeam;
 
