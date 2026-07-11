@@ -384,8 +384,6 @@
                             <th id="th-opponent">Opponent</th>
                             <th id="th-type">Match Type</th>
                             <th id="th-score">Score</th>
-                            <th id="th-coach">Coach</th>
-                            <th id="th-volunteers">Volunteers</th>
                         </tr>
                     </thead>
                     <tbody id="table-body-dynamic">
@@ -427,8 +425,6 @@
                 thOpponent: "Opponent",
                 thType: "Match Type",
                 thScore: "Score",
-                thCoach: "Coach",
-                thVolunteers: "Volunteers",
                 homeGame: "HOME GAME",
                 awayGame: "AWAY GAME",
                 noMatches: "No upcoming matches",
@@ -459,8 +455,6 @@
                 thOpponent: "Tegenstander",
                 thType: "Type",
                 thScore: "Uitslag",
-                thCoach: "Coach",
-                thVolunteers: "Vrijwilligers",
                 homeGame: "THUISWEDSTRIJD",
                 awayGame: "UITWEDSTRIJD",
                 noMatches: "Geen aankomende wedstrijden",
@@ -487,7 +481,6 @@
         let globalExcelRows = [];
         let globalMatchData = null;
 
-        // מנגנון חילוץ שם הקבוצה מה-URL. ברירת מחדל: JO12-1
         const urlParams = new URLSearchParams(window.location.search);
         const currentTeam = urlParams.get('team') || "JO12-1"; 
 
@@ -509,12 +502,10 @@
                 <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
             </svg>`;
 
-        // נתיבים דינמיים מוחלטים המבוססים אך ורק על המבנה הגנרי החדש של שמות הקבצים
         const excelFilePath = `./${currentTeam}/${currentTeam}_Volunteers.xlsx`;
         const jsonFilePath = `./${currentTeam}/${currentTeam}_next-match.json`;
         
         const allRoles = ['Coach', 'Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
-        const volunteerRolesOnly = ['Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
 
         function calculateMeetUpTime(kickOffStr) {
             if (!kickOffStr || !kickOffStr.includes(":")) return "TBD";
@@ -564,18 +555,6 @@
             return lines.join("<br>") || translations[currentLang].noStaff;
         }
 
-        function buildVolunteersTableText(excelRow) {
-            if (!excelRow) return "-";
-            let rolesArr = [];
-            volunteerRolesOnly.forEach(role => {
-                let val = getValueIgnoreCase(excelRow, role);
-                if (val && String(val).trim() !== "") {
-                    rolesArr.push(`${translateRoleName(role)}: ${String(val).trim()}`);
-                }
-            });
-            return rolesArr.join(", ") || "-";
-        }
-
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'nl' : 'en';
             document.getElementById("lang-toggle-btn").innerText = currentLang === 'en' ? 'NL' : 'EN';
@@ -606,8 +585,6 @@
             document.getElementById("th-opponent").innerText = t.thOpponent;
             document.getElementById("th-type").innerText = t.thType;
             document.getElementById("th-score").innerText = t.thScore;
-            document.getElementById("th-coach").innerText = t.thCoach;
-            document.getElementById("th-volunteers").innerText = t.thVolunteers;
 
             if (globalMatchData) {
                 renderUI(globalMatchData);
@@ -673,14 +650,6 @@
                     }
                 }
 
-                const excelMatch = globalExcelRows.find(row => {
-                    return getMatchNumberFromRow(row) === String(match.number).trim();
-                });
-
-                const coachVal = excelMatch ? getValueIgnoreCase(excelMatch, 'Coach') : "";
-                const matchCoach = coachVal && String(coachVal).trim() !== "" ? String(coachVal).trim() : "TBD";
-                const matchVolunteersText = buildVolunteersTableText(excelMatch);
-
                 const isCurrentMatch = matchedRowData && match.number === matchedRowData.number;
                 const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
 
@@ -698,8 +667,6 @@
                         <td>${match.opponent}</td>
                         <td>${displayType}</td>
                         <td>${styledScore}</td>
-                        <td>${matchCoach}</td>
-                        <td>${matchVolunteersText}</td>
                     </tr>
                 `;
             });
@@ -756,7 +723,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", async function() {
-            // עדכון כותרות באופן דינמי לפי הקבוצה שמגיעה מה-URL
             document.getElementById("header-team-name").innerText = currentTeam;
             document.getElementById("banner-team-name").innerText = currentTeam;
 
