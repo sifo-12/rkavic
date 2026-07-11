@@ -1,0 +1,37 @@
+{
+  "matches": [
+    {
+      "number": "1",
+      "q": "Q3",
+      "league": "1-21",
+      "date": "2026-07-06",
+      "kickoffTime": "10:00",
+      "address": "RKAVIC Amstelveen",
+      "opponent": "DVVA JO12-2",
+      "matchType": "Home",
+      "score": "4-2"
+    },
+    {
+      "number": "2",
+      "q": "Q3",
+      "league": "1-32",
+      "date": "2026-08-04",
+      "kickoffTime": "09:30",
+      "address": "Aanloop 2, Amstelveen",
+      "opponent": "AMVJ JO12-1",
+      "matchType": "Away",
+      "score": "1-3"
+    },
+    {
+      "number": "3",
+      "q": "Q3",
+      "league": "1-32",
+      "date": "2026-08-11",
+      "kickoffTime": "11:15",
+      "address": "RKAVIC Amstelveen",
+      "opponent": "AFC JO12-3",
+      "matchType": "Home",
+      "score": "-"
+    }
+  ]
+}
