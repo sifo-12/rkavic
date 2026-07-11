@@ -487,7 +487,7 @@
         let globalExcelRows = [];
         let globalMatchData = null;
 
-        // מנגנון חילוץ שם הקבוצה ישירות מה-URL (לדוגמה ?team=JO12-1). ברירת מחדל: JO12-1
+        // מנגנון חילוץ שם הקבוצה מה-URL. ברירת מחדל: JO12-1
         const urlParams = new URLSearchParams(window.location.search);
         const currentTeam = urlParams.get('team') || "JO12-1"; 
 
@@ -509,9 +509,9 @@
                 <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
             </svg>`;
 
-        // יצירת נתיב מותאם דינמית לקובץ האקסל המצוי בתוך תיקיית הקבוצה
-        const excelFilePath = `./${currentTeam}/Volunteers JO12_1 2026_27.xlsx`;
-        const jsonFilePath = `./${currentTeam}/next-match.json`;
+        // נתיבים דינמיים מוחלטים המבוססים אך ורק על המבנה הגנרי החדש של שמות הקבצים
+        const excelFilePath = `./${currentTeam}/${currentTeam}_Volunteers.xlsx`;
+        const jsonFilePath = `./${currentTeam}/${currentTeam}_next-match.json`;
         
         const allRoles = ['Coach', 'Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
         const volunteerRolesOnly = ['Warm-Up', 'Referee', 'Pitch Prep', 'Lemonade', 'Balls'];
@@ -537,7 +537,6 @@
             return "";
         }
 
-        // שיפור מנגנון זיהוי מפתח המשחק באקסל כדי לתמוך במבנה משתנה של קבוצות אחרות
         function getMatchNumberFromRow(row) {
             if (!row) return "";
             let val = getValueIgnoreCase(row, 'Game');
@@ -618,7 +617,7 @@
         async function loadExcelVolunteers() {
             try {
                 const response = await fetch(excelFilePath);
-                if (!response.ok) throw new Error("Failed to fetch Excel file");
+                if (!response.ok) throw new Error(`Failed to fetch Excel file at ${excelFilePath}`);
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];
@@ -757,7 +756,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", async function() {
-            // עדכון כותרות לפי הקבוצה שמגיעה מה-URL
+            // עדכון כותרות באופן דינמי לפי הקבוצה שמגיעה מה-URL
             document.getElementById("header-team-name").innerText = currentTeam;
             document.getElementById("banner-team-name").innerText = currentTeam;
 
