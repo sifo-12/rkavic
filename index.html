@@ -194,17 +194,6 @@
             margin-bottom: 0.2rem;
         }
 
-        /* Volunteers list specific style */
-        .volunteers-list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            font-size: 0.95rem;
-        }
-        .volunteers-list li {
-            margin-bottom: 2px;
-        }
-
         /* Maps Link Styling */
         .maps-link {
             color: #1a73e8;
@@ -251,6 +240,27 @@
             color: #666;
             text-transform: uppercase;
             font-weight: 600;
+        }
+
+        /* Responsive Calendar Wrapper */
+        .calendar-responsive-wrapper {
+            position: relative;
+            padding-bottom: 65%; /* יחס גובה-רוחב מעולה למחשב ולנייד */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .calendar-responsive-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
         }
 
         /* Tables Formatting */
@@ -325,7 +335,7 @@
 
     <div class="container">
 
-        <div class="section-card">
+        <div class="section-card" id="upcoming-section-wrapper">
             <h2>⚽ <span id="lbl-upcoming-title">Upcoming Match Details</span> - <span id="target-match-date">Loading...</span></h2>
             <div class="upcoming-match-box">
                 <span id="match-type-badge" class="match-badge">LOADING...</span>
@@ -342,7 +352,7 @@
                     </div>
                     <div class="match-info-item">
                         <strong><span id="lbl-jersey">Jersey Color</span></strong>
-                        <div id="match-jersey-container" style="margin-top: 5px;">Loading...</div>
+                        <div id="match-jersey-container" style="margin-top: 5px; display: flex; gap: 5px;">Loading...</div>
                     </div>
                     <div class="match-info-item">
                         <strong id="lbl-volunteers">Assigned Volunteers</strong>
@@ -365,21 +375,26 @@
             </div>
         </div>
 
+        <!-- מדור גוגל קלנדר הציבורי והמסונכרן -->
+        <div class="section-card">
+            <h2>📅 <span id="lbl-calendar-title">Team Calendar</span></h2>
+            <div class="calendar-responsive-wrapper">
+                <iframe src="https://calendar.google.com/calendar/embed?src=0t90kfjjedi8s0gl9vvikomrc21e6sg7%40import.calendar.google.com&src=f5e711bd43e3c8c89999e060dfafac8d35792c9575144b67255365f5bd5cdaa8%40group.calendar.google.com&ctz=Europe%2FAmsterdam&wkst=2" 
+                        frameborder="0" 
+                        scrolling="no">
+                </iframe>
+            </div>
+        </div>
+
         <div class="section-card">
             <h2><span id="lbl-db-title">Matches Database</span></h2>
-            <p id="lbl-db-desc">Duties change depending on match type:</p>
-            <ul style="margin-bottom: 1.5rem; padding-left: 20px;" id="lbl-db-list">
-                <li><strong>Home Matches:</strong> Game Referee, Field Setup Support, Half-Time Lemonade.</li>
-                <li><strong>Away Matches:</strong> Fruit / Snacks, Balls Coordinator.</li>
-            </ul>
-
             <div class="table-responsive">
                 <table id="roster-table">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th id="th-q">Q</th>
-                            <th id="th-league">League</th>
+                            <th id="th-league">Competition</th>
                             <th id="th-date">Date</th>
                             <th id="th-opponent">Opponent</th>
                             <th id="th-type">Match Type</th>
@@ -409,6 +424,7 @@
                 jersey: "Jersey Color",
                 volunteers: "Assigned Volunteers",
                 statsTitle: "Season Statistics Dashboard",
+                calendarTitle: "Team Calendar",
                 played: "Played",
                 wins: "Wins",
                 ties: "Ties",
@@ -417,16 +433,15 @@
                 ga: "Goals Against",
                 gd: "Goal Diff",
                 dbTitle: "Matches Database",
-                dbDesc: "Duties change depending on match type:",
-                dbList: "<li><strong>Home Matches:</strong> Game Referee, Field Setup Support, Half-Time Lemonade.</li><li><strong>Away Matches:</strong> Fruit / Snacks, Balls Coordinator.</li>",
                 thQ: "Q",
-                thLeague: "League",
+                thLeague: "Competition",
                 thDate: "Date",
                 thOpponent: "Opponent",
                 thType: "Match Type",
                 thScore: "Score",
                 homeGame: "HOME GAME",
                 awayGame: "AWAY GAME",
+                tournamentGame: "Tournament",
                 noMatches: "No upcoming matches",
                 noStaff: "No staff assigned"
             },
@@ -439,6 +454,7 @@
                 jersey: "Kleur Shirt",
                 volunteers: "Toegewezen Vrijwilligers",
                 statsTitle: "Seizoensstatistieken Dashboard",
+                calendarTitle: "Team Kalender",
                 played: "Gespeeld",
                 wins: "Gewonnen",
                 ties: "Gelijk",
@@ -447,8 +463,6 @@
                 ga: "Doelpunten Tegen",
                 gd: "Doelsaldo",
                 dbTitle: "Wedstrijden Database",
-                dbDesc: "Taken verschillen per type wedstrijd:",
-                dbList: "<li><strong>Thuiswedstrijden:</strong> Scheidsrechter, Veldoorwacht, Limonade in de rust.</li><li><strong>Uitwedstrijden:</strong> Fruit / Snacks, Ballen Coordinator.</li>",
                 thQ: "K",
                 thLeague: "Competitie",
                 thDate: "Datum",
@@ -457,6 +471,7 @@
                 thScore: "Uitslag",
                 homeGame: "THUISWEDSTRIJD",
                 awayGame: "UITWEDSTRIJD",
+                tournamentGame: "Toernooi",
                 noMatches: "Geen aankomende wedstrijden",
                 noStaff: "Geen vrijwilligers ingedeeld"
             }
@@ -473,7 +488,8 @@
             },
             typeNL: {
                 'Home': 'Thuis',
-                'Away': 'Uit'
+                'Away': 'Uit',
+                'Tournament': 'Toernooi'
             }
         };
 
@@ -568,6 +584,7 @@
             document.getElementById("lbl-jersey").innerText = t.jersey;
             document.getElementById("lbl-volunteers").innerText = t.volunteers;
             document.getElementById("lbl-stats-title").innerText = t.statsTitle;
+            document.getElementById("lbl-calendar-title").innerText = t.calendarTitle;
             document.getElementById("lbl-stat-played").innerText = t.played;
             document.getElementById("lbl-stat-wins").innerText = t.wins;
             document.getElementById("lbl-stat-ties").innerText = t.ties;
@@ -576,8 +593,6 @@
             document.getElementById("lbl-stat-ga").innerText = t.ga;
             document.getElementById("lbl-stat-gd").innerText = t.gd;
             document.getElementById("lbl-db-title").innerText = t.dbTitle;
-            document.getElementById("lbl-db-desc").innerText = t.dbDesc;
-            document.getElementById("lbl-db-list").innerHTML = t.dbList;
             
             document.getElementById("th-q").innerText = t.thQ;
             document.getElementById("th-league").innerText = t.thLeague;
@@ -619,10 +634,6 @@
 
             const sortedMatches = data.matches.sort((a, b) => a.date.localeCompare(b.date));
             matchedRowData = sortedMatches.find(match => match.date >= todayStr);
-            
-            if (!matchedRowData && sortedMatches.length > 0) {
-                matchedRowData = sortedMatches[sortedMatches.length - 1];
-            }
 
             sortedMatches.forEach(match => {
                 const scoreText = match.score ? match.score.trim() : "-";
@@ -650,7 +661,7 @@
                     }
                 }
 
-                const isCurrentMatch = matchedRowData && match.number === matchedRowData.number;
+                const isCurrentMatch = matchedRowData && match.date === matchedRowData.date && match.number === matchedRowData.number;
                 const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
 
                 let displayType = match.matchType;
@@ -660,11 +671,11 @@
 
                 tableHTMLRows += `
                     <tr${rowClass}>
-                        <td>${match.number}</td>
+                        <td>${match.number || "-"}</td>
                         <td>${match.q}</td>
                         <td>${match.league}</td>
                         <td>${match.date}</td>
-                        <td>${match.opponent}</td>
+                        <td>${match.opponent || "-"}</td>
                         <td>${displayType}</td>
                         <td>${styledScore}</td>
                     </tr>
@@ -683,10 +694,13 @@
             document.getElementById("stats-gd").innerText = diff > 0 ? `+${diff}` : diff;
 
             if (matchedRowData) {
-                document.getElementById("target-match-date").innerText = `Match day ${matchedRowData.number} - ${matchedRowData.date}`;
+                document.getElementById("upcoming-section-wrapper").style.display = "block";
+                const isTournament = matchedRowData.matchType.toLowerCase() === "tournament";
+                const matchDayPrefix = matchedRowData.number ? `Match day ${matchedRowData.number}` : "Tournament day";
+                
+                document.getElementById("target-match-date").innerText = `${matchDayPrefix} - ${matchedRowData.date}`;
                 document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
                 document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
-                document.getElementById("match-opponent").innerText = matchedRowData.opponent;
 
                 const currentExcelMatch = globalExcelRows.find(row => {
                     return getMatchNumberFromRow(row) === String(matchedRowData.number).trim();
@@ -697,17 +711,32 @@
                 const badgeElement = document.getElementById("match-type-badge");
                 const jerseyContainer = document.getElementById("match-jersey-container");
                 const locationElement = document.getElementById("match-location");
+                const opponentElement = document.getElementById("match-opponent");
                 const addressText = matchedRowData.address || "";
 
                 if (matchedRowData.matchType.toLowerCase() === "home") {
                     badgeElement.innerText = translations[currentLang].homeGame;
                     badgeElement.className = "match-badge home-badge";
                     jerseyContainer.innerHTML = orangeJerseySVG;
+                    opponentElement.innerText = matchedRowData.opponent;
                     locationElement.innerHTML = `<a href="https://maps.google.com/?q=RKAVIC+Amstelveen" target="_blank" class="maps-link">📍 RKAVIC Amstelveen</a>`;
-                } else {
+                } else if (matchedRowData.matchType.toLowerCase() === "away") {
                     badgeElement.innerText = translations[currentLang].awayGame;
                     badgeElement.className = "match-badge away-badge";
                     jerseyContainer.innerHTML = blackJerseySVG;
+                    opponentElement.innerText = matchedRowData.opponent;
+                    
+                    if (addressText) {
+                        const encodedAddress = encodeURIComponent(addressAddressText);
+                        locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodedAddress}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
+                    } else {
+                        locationElement.innerText = "Address TBD";
+                    }
+                } else if (isTournament) {
+                    badgeElement.innerText = translations[currentLang].tournamentGame;
+                    badgeElement.className = "match-badge away-badge"; 
+                    jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG; 
+                    opponentElement.innerText = matchedRowData.league || ""; 
                     
                     if (addressText) {
                         const encodedAddress = encodeURIComponent(addressText);
@@ -719,6 +748,13 @@
             } else {
                 document.getElementById("target-match-date").innerText = translations[currentLang].noMatches;
                 document.getElementById("match-type-badge").innerText = "N/A";
+                document.getElementById("match-type-badge").className = "match-badge away-badge";
+                document.getElementById("match-kickoff").innerText = "-";
+                document.getElementById("match-meetup").innerText = "-";
+                document.getElementById("match-opponent").innerText = "";
+                document.getElementById("match-location").innerText = "-";
+                document.getElementById("match-jersey-container").innerHTML = "-";
+                document.getElementById("match-volunteers").innerText = "-";
             }
         }
 
