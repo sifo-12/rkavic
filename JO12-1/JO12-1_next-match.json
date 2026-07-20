@@ -3,19 +3,19 @@
     {
       "number": "1",
       "q": "Q1",
-      "league": "HK-22",
-      "date": "2026-07-06",
-      "kickoffTime": "10:00",
-      "address": "RKAVIC Amstelveen",
-      "opponent": "DVVA JO12-2",
-      "matchType": "Home",
-      "score": "4-2"
+      "league": "NVC Givaudan Kick-off Zomertornooi",
+      "date": "2026-08-22",
+      "kickoffTime": "13:00",
+      "address": "NVC Givaudan Kick-off Zomertornooi",
+      "opponent": "NVC Givaudan Kick-off Zomertornoo",
+      "matchType": "Tournament",
+      "score": "-"
     },
     {
       "number": "2",
-      "q": "Q4",
+      "q": "Q1",
       "league": "HK-32",
-      "date": "2026-08-04",
+      "date": "2026-09-08",
       "kickoffTime": "09:30",
       "address": "Aanloop 2, Amstelveen",
       "opponent": "AMVJ JO12-1",
@@ -24,14 +24,14 @@
     },
     {
       "number": "3",
-      "q": "Q4",
+      "q": "Q1",
       "league": "HK-101",
-      "date": "2026-08-11",
+      "date": "2026-09-07",
       "kickoffTime": "11:15",
       "address": "RKAVIC Amstelveen",
       "opponent": "AFC JO12-3",
       "matchType": "Home",
-      "score": "-"
+      "score": "1-1"
     }
   ]
 }
