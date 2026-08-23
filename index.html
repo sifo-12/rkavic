@@ -598,11 +598,7 @@
                 return `${hours}:${minutes}`;
             }
             
-<<<<<<< HEAD
             // 3. If stored as a plain string (HH:MM or HH:MM:SS)
-=======
-            // 3. If stored as a plain string
->>>>>>> 4623852f89ee4aad1f6b8fb5299c9a37ebd7897b
             const str = String(timeVal).trim();
             if (str.includes(":")) {
                 const parts = str.split(":");
@@ -639,11 +635,7 @@
             let lines = [];
             allRoles.forEach(role => {
                 let val = getValueIgnoreCase(excelRow, role);
-<<<<<<< HEAD
                 if (!isValueEmptyOrDash(val)) {
-=======
-                if (val && String(val).trim() !== "" && String(val).trim() !== "—" && String(val).trim() !== "-") {
->>>>>>> 4623852f89ee4aad1f6b8fb5299c9a37ebd7897b
                     lines.push(`<strong>${translateRoleName(role)}:</strong> ${String(val).trim()}`);
                 }
             });
@@ -716,11 +708,7 @@
                     const formattedDate = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
                     const opponent = String(getValueIgnoreCase(row, 'Opponent') || getValueIgnoreCase(row, 'Tegenstander') || "").trim();
                     const league = String(getValueIgnoreCase(row, 'League') || getValueIgnoreCase(row, 'Competition') || getValueIgnoreCase(row, 'Competitie') || "").trim();
-<<<<<<< HEAD
                     const rawNumber = String(getValueIgnoreCase(row, 'Game') || getValueIgnoreCase(row, 'Match') || getValueIgnoreCase(row, 'Number') || getValueIgnoreCase(row, '#') || "").trim();
-=======
-                    const rawNumber = String(getValueIgnoreCase(row, 'Number') || getValueIgnoreCase(row, 'Game') || getValueIgnoreCase(row, 'Match') || getValueIgnoreCase(row, '#') || "").trim();
->>>>>>> 4623852f89ee4aad1f6b8fb5299c9a37ebd7897b
                     
                     // Filter out empty/ghost rows
                     if (!formattedDate && !opponent && !league && !rawNumber) {
@@ -734,13 +722,8 @@
                         address = "Escapade 5, Amstelveen";
                     }
 
-<<<<<<< HEAD
                     const rawTime = getValueIgnoreCase(row, 'Kickoff') || 
                                     getValueIgnoreCase(row, 'KickoffTime') || 
-=======
-                    const rawTime = getValueIgnoreCase(row, 'KickoffTime') || 
-                                    getValueIgnoreCase(row, 'Kickoff') || 
->>>>>>> 4623852f89ee4aad1f6b8fb5299c9a37ebd7897b
                                     getValueIgnoreCase(row, 'Kick-off') || 
                                     getValueIgnoreCase(row, 'Time') || 
                                     getValueIgnoreCase(row, 'Tijd') || 
