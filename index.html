@@ -678,77 +678,84 @@
         }
 
         async function loadExcelVolunteers() {
-            try {
-                const response = await fetch(volunteersFilePath);
-                if (!response.ok) throw new Error(`Failed to fetch Excel file at ${volunteersFilePath}`);
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                return XLSX.utils.sheet_to_json(worksheet);
-            } catch (error) {
-                console.error("Error loading Volunteers Excel file:", error);
-                return [];
-            }
+    try {
+        const cacheBuster = `?t=${new Date().getTime()}`;
+        const response = await fetch(volunteersFilePath + cacheBuster);
+        if (!response.ok) {
+            console.error(`Failed to fetch ${volunteersFilePath}. Status: ${response.status}`);
+            return [];
         }
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        return XLSX.utils.sheet_to_json(worksheet);
+    } catch (error) {
+        console.error("Error loading Volunteers Excel file:", error);
+        return [];
+    }
+}
 
         async function loadExcelMatches() {
-            try {
-                const response = await fetch(matchesDbFilePath);
-                if (!response.ok) throw new Error(`Failed to fetch Matches DB Excel file at ${matchesDbFilePath}`);
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const rawRows = XLSX.utils.sheet_to_json(worksheet);
-
-                const matches = [];
-
-                rawRows.forEach(row => {
-                    const formattedDate = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
-                    const opponent = String(getValueIgnoreCase(row, 'Opponent') || getValueIgnoreCase(row, 'Tegenstander') || "").trim();
-                    const league = String(getValueIgnoreCase(row, 'League') || getValueIgnoreCase(row, 'Competition') || getValueIgnoreCase(row, 'Competitie') || "").trim();
-                    const rawNumber = String(getValueIgnoreCase(row, 'Game') || getValueIgnoreCase(row, 'Match') || getValueIgnoreCase(row, 'Number') || getValueIgnoreCase(row, '#') || "").trim();
-                    
-                    // Filter out empty/ghost rows
-                    if (!formattedDate && !opponent && !league && !rawNumber) {
-                        return;
-                    }
-
-                    const matchType = getValueIgnoreCase(row, 'MatchType') || getValueIgnoreCase(row, 'Type') || "Home";
-                    let address = getValueIgnoreCase(row, 'Address') || getValueIgnoreCase(row, 'Location') || getValueIgnoreCase(row, 'Locatie') || "";
-                    
-                    if (matchType.toString().toLowerCase() === "home" && !address) {
-                        address = "Escapade 5, Amstelveen";
-                    }
-
-                    const rawTime = getValueIgnoreCase(row, 'Kickoff') || 
-                                    getValueIgnoreCase(row, 'KickoffTime') || 
-                                    getValueIgnoreCase(row, 'Kick-off') || 
-                                    getValueIgnoreCase(row, 'Time') || 
-                                    getValueIgnoreCase(row, 'Tijd') || 
-                                    getValueIgnoreCase(row, 'Aanvang');
-
-                    matches.push({
-                        number: rawNumber,
-                        q: String(getValueIgnoreCase(row, 'Q') || "").trim(),
-                        league: league,
-                        date: formattedDate,
-                        kickoffTime: formatExcelTime(rawTime),
-                        address: String(address).trim(),
-                        opponent: opponent,
-                        matchType: String(matchType).trim(),
-                        score: String(getValueIgnoreCase(row, 'Score') || getValueIgnoreCase(row, 'Uitslag') || "-").trim(),
-                        url: String(getValueIgnoreCase(row, 'URL') || getValueIgnoreCase(row, 'Url') || getValueIgnoreCase(row, 'Link') || "").trim()
-                    });
-                });
-
-                return { matches: matches };
-            } catch (error) {
-                console.error("Error loading Matches DB Excel file:", error);
-                return { matches: [] };
-            }
+    try {
+        const cacheBuster = `?t=${new Date().getTime()}`;
+        const response = await fetch(matchesDbFilePath + cacheBuster);
+        if (!response.ok) {
+            console.error(`Failed to fetch ${matchesDbFilePath}. Status: ${response.status}`);
+            return { matches: [] };
         }
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawRows = XLSX.utils.sheet_to_json(worksheet);
+
+        const matches = [];
+
+        rawRows.forEach(row => {
+            const formattedDate = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
+            const opponent = String(getValueIgnoreCase(row, 'Opponent') || getValueIgnoreCase(row, 'Tegenstander') || "").trim();
+            const league = String(getValueIgnoreCase(row, 'League') || getValueIgnoreCase(row, 'Competition') || getValueIgnoreCase(row, 'Competitie') || "").trim();
+            const rawNumber = String(getValueIgnoreCase(row, 'Game') || getValueIgnoreCase(row, 'Match') || getValueIgnoreCase(row, 'Number') || getValueIgnoreCase(row, '#') || "").trim();
+            
+            if (!formattedDate && !opponent && !league && !rawNumber) {
+                return;
+            }
+
+            const matchType = getValueIgnoreCase(row, 'MatchType') || getValueIgnoreCase(row, 'Type') || "Home";
+            let address = getValueIgnoreCase(row, 'Address') || getValueIgnoreCase(row, 'Location') || getValueIgnoreCase(row, 'Locatie') || "";
+            
+            if (matchType.toString().toLowerCase() === "home" && !address) {
+                address = "Escapade 5, Amstelveen";
+            }
+
+            const rawTime = getValueIgnoreCase(row, 'Kickoff') || 
+                            getValueIgnoreCase(row, 'KickoffTime') || 
+                            getValueIgnoreCase(row, 'Kick-off') || 
+                            getValueIgnoreCase(row, 'Time') || 
+                            getValueIgnoreCase(row, 'Tijd') || 
+                            getValueIgnoreCase(row, 'Aanvang');
+
+            matches.push({
+                number: rawNumber,
+                q: String(getValueIgnoreCase(row, 'Q') || "").trim(),
+                league: league,
+                date: formattedDate,
+                kickoffTime: formatExcelTime(rawTime),
+                address: String(address).trim(),
+                opponent: opponent,
+                matchType: String(matchType).trim(),
+                score: String(getValueIgnoreCase(row, 'Score') || getValueIgnoreCase(row, 'Uitslag') || "-").trim(),
+                url: String(getValueIgnoreCase(row, 'URL') || getValueIgnoreCase(row, 'Url') || getValueIgnoreCase(row, 'Link') || "").trim()
+            });
+        });
+
+        return { matches: matches };
+    } catch (error) {
+        console.error("Error loading Matches DB Excel file:", error);
+        return { matches: [] };
+    }
+}
 
         function renderUI(data) {
             const today = new Date();
