@@ -9,6 +9,7 @@
     <style>
         :root {
             --primary-orange: #ff8400; /* RKAVIC Orange */
+            --ref-blue: #1976d2; /* Referee Points Blue */
             --black: #1a1a1a;
             --white: #ffffff;
             --light-gray: #f7f9f8;
@@ -306,6 +307,98 @@
         .score-lose { color: var(--lose-red); font-weight: bold; }
         .score-tie { color: var(--tie-gray); font-weight: bold; }
 
+        /* Volunteer Score Horizontal Bars */
+        .volunteer-scores-container {
+            margin-bottom: 1.8rem;
+            background: var(--light-gray);
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .scores-header-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .score-legend {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .legend-dot.ref { background-color: var(--ref-blue); }
+        .legend-dot.other { background-color: var(--primary-orange); }
+
+        .score-bars-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .volunteer-bar-row {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .volunteer-name-label {
+            width: 120px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .volunteer-bar-track {
+            flex-grow: 1;
+            background: #e5e5e5;
+            height: 18px;
+            border-radius: 9px;
+            overflow: hidden;
+            margin: 0 12px;
+            display: flex;
+            position: relative;
+        }
+
+        .bar-segment {
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .bar-segment.ref-segment {
+            background: var(--ref-blue);
+        }
+
+        .bar-segment.other-segment {
+            background: var(--primary-orange);
+        }
+
+        .volunteer-score-val {
+            min-width: 65px;
+            font-weight: bold;
+            text-align: right;
+            color: var(--black);
+        }
+
         footer {
             text-align: center;
             padding: 3rem 1rem;
@@ -411,6 +504,44 @@
             </div>
         </div>
 
+        <!-- 5. Volunteer Roster Schedule (Columns A to H) -->
+        <div class="section-card">
+            <h2>🤝 <span id="lbl-volunteers-table-title">Season Volunteer Schedule</span></h2>
+            
+            <!-- Volunteer Score Horizontal Stacked Bars -->
+            <div class="volunteer-scores-container">
+                <div class="scores-header-wrap">
+                    <strong id="lbl-points-board-title" style="color: var(--black); text-transform: uppercase; font-size: 0.9rem;">Season Volunteer Points</strong>
+                    <div class="score-legend">
+                        <span class="legend-item"><span class="legend-dot ref"></span> <span id="lbl-legend-ref">Referee (2 pts)</span></span>
+                        <span class="legend-item"><span class="legend-dot other"></span> <span id="lbl-legend-other">Other Roles (1 pt)</span></span>
+                    </div>
+                </div>
+                <div id="volunteer-scores-bars" class="score-bars-wrapper">
+                    <!-- Dynamic score bars rendered here -->
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="volunteers-table">
+                    <thead>
+                        <tr>
+                            <th id="th-vol-game">Game</th>
+                            <th id="th-vol-date">Date</th>
+                            <th id="th-vol-loc">Location</th>
+                            <th id="th-vol-coach">Coach</th>
+                            <th id="th-vol-ref">Referee</th>
+                            <th id="th-vol-pitch">Pitch Prep</th>
+                            <th id="th-vol-lemonade">Lemonade</th>
+                            <th id="th-vol-balls">Balls</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-volunteers-dynamic">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <footer>
@@ -437,12 +568,26 @@
                 ga: "Goals Against",
                 gd: "Goal Diff",
                 dbTitle: "Matches Database",
+                volunteersTableTitle: "Season Volunteer Schedule",
+                pointsBoardTitle: "Season Volunteer Points",
+                legendRef: "Referee (2 pts)",
+                legendOther: "Other Roles (1 pt)",
+                pointsSuffix: "pts",
+                noPointsYet: "No volunteer points registered.",
                 thQ: "Q",
                 thLeague: "Competition",
                 thDate: "Date",
                 thOpponent: "Opponent",
                 thType: "Match Type",
                 thScore: "Score",
+                thVolGame: "Game",
+                thVolDate: "Date",
+                thVolLoc: "Location",
+                thVolCoach: "Coach",
+                thVolRef: "Referee",
+                thVolPitch: "Pitch Prep",
+                thVolLemonade: "Lemonade",
+                thVolBalls: "Balls",
                 homeGame: "HOME GAME",
                 awayGame: "AWAY GAME",
                 tournamentGame: "Tournament",
@@ -469,12 +614,26 @@
                 ga: "Doelpunten Tegen",
                 gd: "Doelsaldo",
                 dbTitle: "Wedstrijden Database",
+                volunteersTableTitle: "Vrijwilligers Schema",
+                pointsBoardTitle: "Seizoen Vrijwilligers Punten",
+                legendRef: "Scheidsrechter (2 ptn)",
+                legendOther: "Overige Taken (1 pt)",
+                pointsSuffix: "ptn",
+                noPointsYet: "Geen vrijwilligerspunten geregistreerd.",
                 thQ: "K",
                 thLeague: "Competitie",
                 thDate: "Datum",
                 thOpponent: "Tegenstander",
                 thType: "Type",
                 thScore: "Uitslag",
+                thVolGame: "Wedstrijd",
+                thVolDate: "Datum",
+                thVolLoc: "Locatie",
+                thVolCoach: "Coach",
+                thVolRef: "Scheidsrechter",
+                thVolPitch: "Veldoorwacht",
+                thVolLemonade: "Limonade",
+                thVolBalls: "Ballen",
                 homeGame: "THUISWEDSTRIJD",
                 awayGame: "UITWEDSTRIJD",
                 tournamentGame: "Toernooi",
@@ -638,6 +797,136 @@
             return lines.join("<br>") || translations[currentLang].noStaff;
         }
 
+        function renderVolunteersTable(rows) {
+            let html = "";
+            rows.forEach(row => {
+                let gameVal = getValueIgnoreCase(row, 'Game');
+                if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Match');
+                if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Number');
+                
+                const gameStr = String(gameVal || "").trim();
+                
+                if (!gameStr || gameStr === "undefined" || gameStr === "null") {
+                    return;
+                }
+
+                const dateVal = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
+                const locVal = getValueIgnoreCase(row, 'Location') || getValueIgnoreCase(row, 'Locatie') || "";
+
+                const coachVal = isValueEmptyOrDash(getValueIgnoreCase(row, 'Coach')) ? "—" : String(getValueIgnoreCase(row, 'Coach')).trim();
+                const refVal = isValueEmptyOrDash(getValueIgnoreCase(row, 'Referee')) ? "—" : String(getValueIgnoreCase(row, 'Referee')).trim();
+                const pitchVal = isValueEmptyOrDash(getValueIgnoreCase(row, 'Pitch Prep')) ? "—" : String(getValueIgnoreCase(row, 'Pitch Prep')).trim();
+                const lemonadeVal = isValueEmptyOrDash(getValueIgnoreCase(row, 'Lemonade')) ? "—" : String(getValueIgnoreCase(row, 'Lemonade')).trim();
+                const ballsVal = isValueEmptyOrDash(getValueIgnoreCase(row, 'Balls')) ? "—" : String(getValueIgnoreCase(row, 'Balls')).trim();
+
+                html += `
+                    <tr>
+                        <td><strong>${gameStr}</strong></td>
+                        <td>${dateVal}</td>
+                        <td>${locVal}</td>
+                        <td>${coachVal}</td>
+                        <td>${refVal}</td>
+                        <td>${pitchVal}</td>
+                        <td>${lemonadeVal}</td>
+                        <td>${ballsVal}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById("table-volunteers-dynamic").innerHTML = html;
+        }
+
+        function renderVolunteerScoreBars(rows) {
+            const volunteerStats = {};
+
+            // 1. Gather all recognized kids from columns J-O
+            rows.forEach(row => {
+                const kidName = getValueIgnoreCase(row, 'Kid');
+                if (kidName && String(kidName).trim() !== "" && String(kidName).trim() !== "undefined") {
+                    const name = String(kidName).trim();
+                    if (!volunteerStats[name]) {
+                        volunteerStats[name] = { ref: 0, other: 0, total: 0 };
+                    }
+                }
+            });
+
+            // 2. Calculate scores separately for Referee (Blue) and Other roles (Orange)
+            rows.forEach(row => {
+                let gameVal = getValueIgnoreCase(row, 'Game');
+                if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Match');
+                if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Number');
+                const gameStr = String(gameVal || "").trim();
+                
+                if (!gameStr || gameStr === "undefined" || gameStr === "null") return;
+
+                // Referee = 2 points
+                const refVal = getValueIgnoreCase(row, 'Referee');
+                if (!isValueEmptyOrDash(refVal)) {
+                    const name = String(refVal).trim();
+                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
+                    volunteerStats[name].ref += 2;
+                    volunteerStats[name].total += 2;
+                }
+
+                // Pitch Prep = 1 point
+                const pitchVal = getValueIgnoreCase(row, 'Pitch Prep');
+                if (!isValueEmptyOrDash(pitchVal)) {
+                    const name = String(pitchVal).trim();
+                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
+                    volunteerStats[name].other += 1;
+                    volunteerStats[name].total += 1;
+                }
+
+                // Lemonade = 1 point
+                const lemVal = getValueIgnoreCase(row, 'Lemonade');
+                if (!isValueEmptyOrDash(lemVal)) {
+                    const name = String(lemVal).trim();
+                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
+                    volunteerStats[name].other += 1;
+                    volunteerStats[name].total += 1;
+                }
+
+                // Balls = 1 point
+                const ballsVal = getValueIgnoreCase(row, 'Balls');
+                if (!isValueEmptyOrDash(ballsVal)) {
+                    const name = String(ballsVal).trim();
+                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
+                    volunteerStats[name].other += 1;
+                    volunteerStats[name].total += 1;
+                }
+            });
+
+            const entries = Object.entries(volunteerStats);
+            if (entries.length === 0) {
+                document.getElementById("volunteer-scores-bars").innerHTML = `<div style="font-size:0.9rem; color:#666;">${translations[currentLang].noPointsYet}</div>`;
+                return;
+            }
+
+            // Sort by Total Score Descending, then Alphabetically
+            entries.sort((a, b) => b[1].total - a[1].total || a[0].localeCompare(b[0]));
+
+            // Scale bar widths based on maximum points across the team
+            const maxPoints = Math.max(...entries.map(e => e[1].total), 3);
+
+            let barsHTML = "";
+            entries.forEach(([name, data]) => {
+                const refPercent = (data.ref / maxPoints) * 100;
+                const otherPercent = (data.other / maxPoints) * 100;
+
+                barsHTML += `
+                    <div class="volunteer-bar-row">
+                        <div class="volunteer-name-label" title="${name}">${name}</div>
+                        <div class="volunteer-bar-track">
+                            <div class="bar-segment ref-segment" style="width: ${refPercent}%;" title="Referee: ${data.ref} pts"></div>
+                            <div class="bar-segment other-segment" style="width: ${otherPercent}%;" title="Other roles: ${data.other} pts"></div>
+                        </div>
+                        <div class="volunteer-score-val">${data.total} ${translations[currentLang].pointsSuffix}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById("volunteer-scores-bars").innerHTML = barsHTML;
+        }
+
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'nl' : 'en';
             document.getElementById("lang-toggle-btn").innerText = currentLang === 'en' ? 'NL' : 'EN';
@@ -660,6 +949,10 @@
             document.getElementById("lbl-stat-ga").innerText = t.ga;
             document.getElementById("lbl-stat-gd").innerText = t.gd;
             document.getElementById("lbl-db-title").innerText = t.dbTitle;
+            document.getElementById("lbl-volunteers-table-title").innerText = t.volunteersTableTitle;
+            document.getElementById("lbl-points-board-title").innerText = t.pointsBoardTitle;
+            document.getElementById("lbl-legend-ref").innerText = t.legendRef;
+            document.getElementById("lbl-legend-other").innerText = t.legendOther;
             
             document.getElementById("th-q").innerText = t.thQ;
             document.getElementById("th-league").innerText = t.thLeague;
@@ -668,8 +961,21 @@
             document.getElementById("th-type").innerText = t.thType;
             document.getElementById("th-score").innerText = t.thScore;
 
+            document.getElementById("th-vol-game").innerText = t.thVolGame;
+            document.getElementById("th-vol-date").innerText = t.thVolDate;
+            document.getElementById("th-vol-loc").innerText = t.thVolLoc;
+            document.getElementById("th-vol-coach").innerText = t.thVolCoach;
+            document.getElementById("th-vol-ref").innerText = t.thVolRef;
+            document.getElementById("th-vol-pitch").innerText = t.thVolPitch;
+            document.getElementById("th-vol-lemonade").innerText = t.thVolLemonade;
+            document.getElementById("th-vol-balls").innerText = t.thVolBalls;
+
             if (globalMatchData) {
                 renderUI(globalMatchData);
+            }
+            if (globalExcelRows) {
+                renderVolunteersTable(globalExcelRows);
+                renderVolunteerScoreBars(globalExcelRows);
             }
         }
 
@@ -679,7 +985,7 @@
                 const response = await fetch(volunteersFilePath + cacheBuster);
                 if (!response.ok) throw new Error(`Failed to fetch Excel file at ${volunteersFilePath}`);
                 const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 return XLSX.utils.sheet_to_json(worksheet);
@@ -830,7 +1136,6 @@
                 const isTournament = typeLower === "tournament";
                 const isFriendly = typeLower === "friendly";
                 
-                // Displays strictly the date: Upcoming Match Details - 2026-08-29
                 document.getElementById("target-match-date").innerText = matchedRowData.date;
                 document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
                 document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
@@ -921,6 +1226,8 @@
             globalExcelRows = volunteers;
             globalMatchData = matchesData;
             renderUI(matchesData);
+            renderVolunteersTable(volunteers);
+            renderVolunteerScoreBars(volunteers);
         });
     </script>
 </body>
