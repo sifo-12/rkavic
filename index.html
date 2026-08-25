@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>RKAVIC Team Portal</title>
     <!-- Support for reading Excel files directly from the browser -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -19,29 +19,34 @@
             --tie-gray: #1a1a1a;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
             margin: 0;
             padding: 0;
             background-color: var(--light-gray);
             color: var(--black);
+            -webkit-text-size-adjust: 100%;
         }
 
-        /* Language Switcher Button Style - Left Top Corner */
+        /* Language Switcher */
         .lang-switcher {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 12px;
+            left: 12px;
             z-index: 100;
         }
 
         .lang-btn {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(255, 255, 255, 0.2);
             color: var(--white);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             padding: 6px 12px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
@@ -53,122 +58,120 @@
             border-color: var(--primary-orange);
         }
 
-        /* Header Style */
+        /* Header */
         header {
             position: relative;
             background-color: var(--black);
             color: var(--white);
-            padding: 1.5rem;
+            padding: 1.2rem 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            border-bottom: 5px solid var(--primary-orange);
-        }
-
-        .header-logo {
-            height: 80px;
-            width: auto;
-        }
-
-        .header-text-container {
+            gap: 15px;
+            border-bottom: 4px solid var(--primary-orange);
             text-align: left;
         }
 
-        header h1 {
+        .header-logo {
+            height: clamp(45px, 8vw, 75px);
+            width: auto;
+        }
+
+        .header-text-container h1 {
             margin: 0;
-            font-size: 2.2rem;
+            font-size: clamp(1.3rem, 4vw, 2.2rem);
             color: var(--white);
+            line-height: 1.1;
         }
 
         header p {
-            margin: 5px 0 0 0;
-            font-size: 1.1rem;
+            margin: 3px 0 0 0;
+            font-size: clamp(0.85rem, 2.5vw, 1.05rem);
             color: var(--primary-orange);
             font-weight: bold;
         }
 
-        /* 6:1 Ratio Pure CSS Stadium Banner Element */
+        /* Responsive Stadium Banner */
         .stadium-banner-6to1 {
             width: 100%;
-            aspect-ratio: 6 / 1;
+            padding: clamp(1rem, 3vw, 2.5rem) 1rem;
             background: linear-gradient(135deg, #111111 0%, #222222 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             border-bottom: 4px solid var(--primary-orange);
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.7);
-            overflow: hidden;
-            box-sizing: border-box;
-            padding: 1rem;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.8);
+            text-align: center;
         }
 
         .banner-title {
             margin: 0;
             font-family: 'Impact', 'Arial Black', sans-serif;
-            font-size: 5vw;
+            font-size: clamp(2rem, 7vw, 4.5rem);
             color: var(--primary-orange);
-            letter-spacing: 0.5vw;
+            letter-spacing: clamp(2px, 0.8vw, 6px);
             text-transform: uppercase;
-            text-shadow: 0.3vw 0.3vw 0px var(--white), 0.5vw 0.5vw 0px rgba(0,0,0,0.5);
-            transform: skew(-6deg);
+            text-shadow: 2px 2px 0px var(--white), 4px 4px 0px rgba(0,0,0,0.6);
+            transform: skew(-5deg);
             line-height: 1;
         }
 
         .banner-subtitle {
-            font-family: 'Segoe UI', sans-serif;
+            font-size: clamp(0.75rem, 2.2vw, 1.1rem);
             color: var(--white);
-            font-size: 1.3vw;
-            font-weight: bold;
-            letter-spacing: 0.3vw;
-            margin-top: 0.5vw;
+            font-weight: 700;
+            letter-spacing: clamp(1px, 0.4vw, 3px);
+            margin-top: 6px;
             text-transform: uppercase;
             opacity: 0.9;
         }
 
-        /* Layout Container */
+        /* Container */
         .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            width: 100%;
+            max-width: 1150px;
+            margin: 1.5rem auto;
+            padding: 0 clamp(10px, 2.5vw, 20px);
         }
 
-        /* Card Component */
+        /* Section Card */
         .section-card {
             background: var(--white);
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-            padding: 2rem;
-            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: clamp(1rem, 3vw, 1.8rem);
+            margin-bottom: 1.5rem;
             border-top: 4px solid var(--black);
         }
 
         .section-card h2 {
             color: var(--black);
-            margin-top: 0;
-            border-bottom: 3px solid var(--primary-orange);
-            padding-bottom: 0.5rem;
+            margin: 0 0 1rem 0;
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            border-bottom: 2px solid var(--primary-orange);
+            padding-bottom: 0.4rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
-        /* Upcoming Match Highlight Box */
+        /* Upcoming Match Box */
         .upcoming-match-box {
             background-color: var(--white);
             border: 2px solid var(--primary-orange);
             border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1rem;
+            padding: clamp(1rem, 2.5vw, 1.4rem);
         }
 
         .match-badge {
             display: inline-block;
-            padding: 0.3rem 0.8rem;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.8rem;
             font-weight: bold;
             border-radius: 4px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .match-badge.home-badge {
@@ -184,18 +187,17 @@
         .match-details-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            gap: 1.2rem;
         }
 
         .match-info-item strong {
             display: block;
             color: var(--black);
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
             margin-bottom: 0.2rem;
         }
 
-        /* Maps & External Links Styling */
         .maps-link, .extra-event-link {
             color: #1a73e8;
             text-decoration: none;
@@ -203,6 +205,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            word-break: break-word;
         }
 
         .maps-link:hover, .extra-event-link:hover {
@@ -210,18 +213,17 @@
             color: var(--primary-orange);
         }
 
-        /* Stats Grid Styles */
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 0.6rem;
         }
 
         .stat-card {
             background-color: var(--light-gray);
             border-radius: 6px;
-            padding: 1rem;
+            padding: 0.75rem 0.4rem;
             text-align: center;
             border-bottom: 3px solid #ccc;
         }
@@ -230,29 +232,32 @@
         .stat-card.stat-lose { border-bottom-color: var(--lose-red); }
 
         .stat-number {
-            font-size: 1.8rem;
+            font-size: clamp(1.2rem, 3.5vw, 1.8rem);
             font-weight: bold;
             display: block;
             color: var(--black);
+            line-height: 1.1;
         }
 
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             color: #666;
             text-transform: uppercase;
             font-weight: 600;
+            margin-top: 4px;
+            display: block;
         }
 
-        /* Responsive Calendar Wrapper */
+        /* Adaptive Calendar Iframe */
         .calendar-responsive-wrapper {
             position: relative;
-            padding-bottom: 65%;
+            width: 100%;
             height: 0;
-            overflow: hidden;
-            max-width: 100%;
+            padding-bottom: clamp(65%, 75vw, 120%);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             background: #fff;
+            overflow: hidden;
         }
 
         .calendar-responsive-wrapper iframe {
@@ -264,33 +269,40 @@
             border: 0;
         }
 
-        /* Tables Formatting */
+        /* Touch-Friendly Responsive Tables */
         .table-responsive {
             overflow-x: auto;
-            max-height: 550px;
+            -webkit-overflow-scrolling: touch;
+            max-height: 520px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
+            margin-top: 0.5rem;
         }
 
         table {
             width: 100%;
+            min-width: 580px; /* Ensures minimum readable width across mobile screens */
             border-collapse: collapse;
             text-align: left;
+            font-size: 0.9rem;
         }
 
         th {
             background-color: var(--black);
             color: var(--white);
-            padding: 1rem;
+            padding: 0.75rem 0.8rem;
             position: sticky;
             top: 0;
             z-index: 10;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
         td {
-            padding: 0.85rem 1rem;
+            padding: 0.7rem 0.8rem;
             border-bottom: 1px solid var(--border-color);
-            vertical-align: top;
+            vertical-align: middle;
+            white-space: nowrap;
         }
 
         tr:nth-child(even) {
@@ -302,16 +314,15 @@
             font-weight: bold;
         }
 
-        /* Dynamic Score Colors */
         .score-win { color: var(--win-green); font-weight: bold; }
         .score-lose { color: var(--lose-red); font-weight: bold; }
         .score-tie { color: var(--tie-gray); font-weight: bold; }
 
-        /* Volunteer Score Horizontal Bars */
+        /* Volunteer Scores Container */
         .volunteer-scores-container {
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.2rem;
             background: var(--light-gray);
-            padding: 1.2rem 1.5rem;
+            padding: clamp(0.8rem, 2.5vw, 1.2rem);
             border-radius: 8px;
             border: 1px solid var(--border-color);
         }
@@ -321,27 +332,28 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .score-legend {
             display: flex;
-            gap: 15px;
-            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.8rem;
             font-weight: 600;
         }
 
         .legend-item {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
             display: inline-block;
         }
 
@@ -351,17 +363,17 @@
         .score-bars-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .volunteer-bar-row {
             display: flex;
             align-items: center;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
         }
 
         .volunteer-name-label {
-            width: 120px;
+            width: clamp(80px, 20vw, 120px);
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -371,40 +383,57 @@
         .volunteer-bar-track {
             flex-grow: 1;
             background: #e5e5e5;
-            height: 18px;
-            border-radius: 9px;
+            height: 14px;
+            border-radius: 7px;
             overflow: hidden;
-            margin: 0 12px;
+            margin: 0 8px;
             display: flex;
             position: relative;
         }
 
         .bar-segment {
             height: 100%;
-            transition: width 0.4s ease;
+            transition: width 0.3s ease;
         }
 
-        .bar-segment.ref-segment {
-            background: var(--ref-blue);
-        }
-
-        .bar-segment.other-segment {
-            background: var(--primary-orange);
-        }
+        .bar-segment.ref-segment { background: var(--ref-blue); }
+        .bar-segment.other-segment { background: var(--primary-orange); }
 
         .volunteer-score-val {
-            min-width: 65px;
+            min-width: 50px;
             font-weight: bold;
             text-align: right;
+            font-size: 0.85rem;
             color: var(--black);
         }
 
         footer {
             text-align: center;
-            padding: 3rem 1rem;
+            padding: 2.5rem 1rem;
             background-color: var(--black);
             color: var(--white);
-            margin-top: 4rem;
+            margin-top: 3rem;
+            font-size: 0.85rem;
+        }
+
+        /* Phone & Tablet View Adjustments */
+        @media (max-width: 768px) {
+            .calendar-responsive-wrapper {
+                padding-bottom: 120%; /* Taller for mobile Google Calendar view */
+            }
+            .match-details-grid {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     </style>
 </head>
@@ -436,7 +465,7 @@
                 <div class="match-details-grid">
                     <div class="match-info-item">
                         <strong id="lbl-opponent-loc">Opponent & Location</strong>
-                        <span id="match-opponent" style="font-weight: bold; font-size: 1.1rem;">Loading...</span> <br> 
+                        <span id="match-opponent" style="font-weight: bold; font-size: 1.05rem;">Loading...</span> <br> 
                         <span id="match-location">Loading...</span>
                         <div id="match-url-container" style="margin-top: 4px;"></div>
                     </div>
@@ -447,11 +476,11 @@
                     </div>
                     <div class="match-info-item">
                         <strong><span id="lbl-jersey">Jersey Color</span></strong>
-                        <div id="match-jersey-container" style="margin-top: 5px; display: flex; gap: 5px;">Loading...</div>
+                        <div id="match-jersey-container" style="margin-top: 4px; display: flex; gap: 5px;">Loading...</div>
                     </div>
                     <div class="match-info-item">
                         <strong id="lbl-volunteers">Assigned Volunteers</strong>
-                        <div id="match-volunteers" style="font-size: 0.95rem;">Loading duties...</div>
+                        <div id="match-volunteers" style="font-size: 0.92rem;">Loading duties...</div>
                     </div>
                 </div>
             </div>
@@ -508,10 +537,9 @@
         <div class="section-card">
             <h2>🤝 <span id="lbl-volunteers-table-title">Season Volunteer Schedule</span></h2>
             
-            <!-- Volunteer Score Horizontal Stacked Bars -->
             <div class="volunteer-scores-container">
                 <div class="scores-header-wrap">
-                    <strong id="lbl-points-board-title" style="color: var(--black); text-transform: uppercase; font-size: 0.9rem;">Season Volunteer Points</strong>
+                    <strong id="lbl-points-board-title" style="color: var(--black); text-transform: uppercase; font-size: 0.88rem;">Season Volunteer Points</strong>
                     <div class="score-legend">
                         <span class="legend-item"><span class="legend-dot ref"></span> <span id="lbl-legend-ref">Referee (2 pts)</span></span>
                         <span class="legend-item"><span class="legend-dot other"></span> <span id="lbl-legend-other">Other Roles (1 pt)</span></span>
@@ -668,7 +696,7 @@
         const currentTeam = urlParams.get('team') || "JO12-1"; 
 
         const orangeJerseySVG = `
-            <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#ff8400" stroke="#1a1a1a" stroke-width="3"/>
                 <path d="M40,10 C45,18 55,18 60,10" fill="none" stroke="#1a1a1a" stroke-width="3"/>
                 <rect x="48" y="30" width="4" height="40" fill="#ffffff"/>
@@ -677,7 +705,7 @@
             </svg>`;
 
         const blackJerseySVG = `
-            <svg width="55" height="55" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#1a1a1a" stroke="#ffffff" stroke-width="3"/>
                 <path d="M40,10 C45,18 55,18 60,10" fill="none" stroke="#ffffff" stroke-width="3"/>
                 <rect x="48" y="30" width="4" height="40" fill="#ffffff"/>
@@ -838,7 +866,6 @@
         function renderVolunteerScoreBars(rows) {
             const volunteerStats = {};
 
-            // 1. Gather all recognized kids from columns J-O
             rows.forEach(row => {
                 const kidName = getValueIgnoreCase(row, 'Kid');
                 if (kidName && String(kidName).trim() !== "" && String(kidName).trim() !== "undefined") {
@@ -849,7 +876,6 @@
                 }
             });
 
-            // 2. Calculate scores separately for Referee (Blue) and Other roles (Orange)
             rows.forEach(row => {
                 let gameVal = getValueIgnoreCase(row, 'Game');
                 if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Match');
@@ -858,7 +884,6 @@
                 
                 if (!gameStr || gameStr === "undefined" || gameStr === "null") return;
 
-                // Referee = 2 points
                 const refVal = getValueIgnoreCase(row, 'Referee');
                 if (!isValueEmptyOrDash(refVal)) {
                     const name = String(refVal).trim();
@@ -867,7 +892,6 @@
                     volunteerStats[name].total += 2;
                 }
 
-                // Pitch Prep = 1 point
                 const pitchVal = getValueIgnoreCase(row, 'Pitch Prep');
                 if (!isValueEmptyOrDash(pitchVal)) {
                     const name = String(pitchVal).trim();
@@ -876,7 +900,6 @@
                     volunteerStats[name].total += 1;
                 }
 
-                // Lemonade = 1 point
                 const lemVal = getValueIgnoreCase(row, 'Lemonade');
                 if (!isValueEmptyOrDash(lemVal)) {
                     const name = String(lemVal).trim();
@@ -885,7 +908,6 @@
                     volunteerStats[name].total += 1;
                 }
 
-                // Balls = 1 point
                 const ballsVal = getValueIgnoreCase(row, 'Balls');
                 if (!isValueEmptyOrDash(ballsVal)) {
                     const name = String(ballsVal).trim();
@@ -897,14 +919,11 @@
 
             const entries = Object.entries(volunteerStats);
             if (entries.length === 0) {
-                document.getElementById("volunteer-scores-bars").innerHTML = `<div style="font-size:0.9rem; color:#666;">${translations[currentLang].noPointsYet}</div>`;
+                document.getElementById("volunteer-scores-bars").innerHTML = `<div style="font-size:0.85rem; color:#666;">${translations[currentLang].noPointsYet}</div>`;
                 return;
             }
 
-            // Sort by Total Score Descending, then Alphabetically
             entries.sort((a, b) => b[1].total - a[1].total || a[0].localeCompare(b[0]));
-
-            // Scale bar widths based on maximum points across the team
             const maxPoints = Math.max(...entries.map(e => e[1].total), 3);
 
             let barsHTML = "";
