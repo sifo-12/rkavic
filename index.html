@@ -281,7 +281,7 @@
 
         table {
             width: 100%;
-            min-width: 580px; /* Ensures minimum readable width across mobile screens */
+            min-width: 580px;
             border-collapse: collapse;
             text-align: left;
             font-size: 0.9rem;
@@ -325,6 +325,7 @@
             padding: clamp(0.8rem, 2.5vw, 1.2rem);
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            position: relative;
         }
 
         .scores-header-wrap {
@@ -370,14 +371,92 @@
             display: flex;
             align-items: center;
             font-size: 0.88rem;
+            position: relative;
         }
 
+        /* Interactive Volunteer Name with Tooltip */
         .volunteer-name-label {
-            width: clamp(80px, 20vw, 120px);
+            width: clamp(85px, 22vw, 125px);
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            cursor: pointer;
+            color: var(--black);
+            text-decoration: underline dotted #888;
+            text-underline-offset: 3px;
+            transition: color 0.2s ease;
+        }
+
+        .volunteer-name-label:hover {
+            color: var(--primary-orange);
+            text-decoration-color: var(--primary-orange);
+        }
+
+        /* Tooltip Card Styling */
+        .custom-volunteer-tooltip {
+            position: absolute;
+            left: 0;
+            bottom: calc(100% + 6px);
+            background-color: #1f1f1f;
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+            z-index: 1000;
+            min-width: 210px;
+            max-width: 320px;
+            display: none;
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .custom-volunteer-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1f1f1f transparent transparent transparent;
+        }
+
+        .custom-volunteer-tooltip.active {
+            display: block;
+        }
+
+        /* Desktop Hover state */
+        @media (hover: hover) and (pointer: fine) {
+            .volunteer-bar-row:hover .custom-volunteer-tooltip {
+                display: block;
+            }
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            color: var(--primary-orange);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            display: block;
+            font-size: 0.88rem;
+        }
+
+        .tooltip-duty-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tooltip-duty-list li {
+            padding: 2px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+
+        .tooltip-duty-list li:last-child {
+            border-bottom: none;
         }
 
         .volunteer-bar-track {
@@ -419,7 +498,7 @@
         /* Phone & Tablet View Adjustments */
         @media (max-width: 768px) {
             .calendar-responsive-wrapper {
-                padding-bottom: 120%; /* Taller for mobile Google Calendar view */
+                padding-bottom: 120%;
             }
             .match-details-grid {
                 grid-template-columns: 1fr;
@@ -602,6 +681,8 @@
                 legendOther: "Other Roles (1 pt)",
                 pointsSuffix: "pts",
                 noPointsYet: "No volunteer points registered.",
+                noDutiesAssigned: "No assigned duties yet",
+                scheduleFor: "Schedule for",
                 thQ: "Q",
                 thLeague: "Competition",
                 thDate: "Date",
@@ -648,6 +729,8 @@
                 legendOther: "Overige Taken (1 pt)",
                 pointsSuffix: "ptn",
                 noPointsYet: "Geen vrijwilligerspunten geregistreerd.",
+                noDutiesAssigned: "Nog geen taken ingedeeld",
+                scheduleFor: "Schema voor",
                 thQ: "K",
                 thLeague: "Competitie",
                 thDate: "Datum",
@@ -863,19 +946,42 @@
             document.getElementById("table-volunteers-dynamic").innerHTML = html;
         }
 
+        function toggleVolunteerTooltip(event, tooltipId) {
+            event.stopPropagation();
+            const currentTooltip = document.getElementById(tooltipId);
+            const allTooltips = document.querySelectorAll('.custom-volunteer-tooltip');
+            
+            allTooltips.forEach(tp => {
+                if (tp !== currentTooltip) tp.classList.remove('active');
+            });
+
+            if (currentTooltip) {
+                currentTooltip.classList.toggle('active');
+            }
+        }
+
+        // Close tooltips when tapping outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.custom-volunteer-tooltip').forEach(tp => {
+                tp.classList.remove('active');
+            });
+        });
+
         function renderVolunteerScoreBars(rows) {
             const volunteerStats = {};
 
+            // 1. Gather all recognized kids from columns J-O
             rows.forEach(row => {
                 const kidName = getValueIgnoreCase(row, 'Kid');
                 if (kidName && String(kidName).trim() !== "" && String(kidName).trim() !== "undefined") {
                     const name = String(kidName).trim();
                     if (!volunteerStats[name]) {
-                        volunteerStats[name] = { ref: 0, other: 0, total: 0 };
+                        volunteerStats[name] = { ref: 0, other: 0, total: 0, duties: [] };
                     }
                 }
             });
 
+            // 2. Record scores and individual duties for each volunteer
             rows.forEach(row => {
                 let gameVal = getValueIgnoreCase(row, 'Game');
                 if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Match');
@@ -884,36 +990,48 @@
                 
                 if (!gameStr || gameStr === "undefined" || gameStr === "null") return;
 
+                const dateVal = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
+                const matchHeader = `${translations[currentLang].thVolGame} ${gameStr} (${dateVal})`;
+
+                // Helper to register duty
+                const addDuty = (name, roleStr, points, isRef) => {
+                    if (!volunteerStats[name]) {
+                        volunteerStats[name] = { ref: 0, other: 0, total: 0, duties: [] };
+                    }
+                    if (isRef) {
+                        volunteerStats[name].ref += points;
+                    } else {
+                        volunteerStats[name].other += points;
+                    }
+                    volunteerStats[name].total += points;
+
+                    // Group duties by match
+                    let dutyEntry = volunteerStats[name].duties.find(d => d.matchHeader === matchHeader);
+                    if (!dutyEntry) {
+                        dutyEntry = { matchHeader, roles: [] };
+                        volunteerStats[name].duties.push(dutyEntry);
+                    }
+                    dutyEntry.roles.push(translateRoleName(roleStr));
+                };
+
                 const refVal = getValueIgnoreCase(row, 'Referee');
                 if (!isValueEmptyOrDash(refVal)) {
-                    const name = String(refVal).trim();
-                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
-                    volunteerStats[name].ref += 2;
-                    volunteerStats[name].total += 2;
+                    addDuty(String(refVal).trim(), 'Referee', 2, true);
                 }
 
                 const pitchVal = getValueIgnoreCase(row, 'Pitch Prep');
                 if (!isValueEmptyOrDash(pitchVal)) {
-                    const name = String(pitchVal).trim();
-                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
-                    volunteerStats[name].other += 1;
-                    volunteerStats[name].total += 1;
+                    addDuty(String(pitchVal).trim(), 'Pitch Prep', 1, false);
                 }
 
                 const lemVal = getValueIgnoreCase(row, 'Lemonade');
                 if (!isValueEmptyOrDash(lemVal)) {
-                    const name = String(lemVal).trim();
-                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
-                    volunteerStats[name].other += 1;
-                    volunteerStats[name].total += 1;
+                    addDuty(String(lemVal).trim(), 'Lemonade', 1, false);
                 }
 
                 const ballsVal = getValueIgnoreCase(row, 'Balls');
                 if (!isValueEmptyOrDash(ballsVal)) {
-                    const name = String(ballsVal).trim();
-                    if (!volunteerStats[name]) volunteerStats[name] = { ref: 0, other: 0, total: 0 };
-                    volunteerStats[name].other += 1;
-                    volunteerStats[name].total += 1;
+                    addDuty(String(ballsVal).trim(), 'Balls', 1, false);
                 }
             });
 
@@ -927,16 +1045,33 @@
             const maxPoints = Math.max(...entries.map(e => e[1].total), 3);
 
             let barsHTML = "";
-            entries.forEach(([name, data]) => {
+            entries.forEach(([name, data], idx) => {
                 const refPercent = (data.ref / maxPoints) * 100;
                 const otherPercent = (data.other / maxPoints) * 100;
+                const tooltipId = `volunteer-tp-${idx}`;
+
+                // Construct tooltip duty list
+                let dutyListHTML = "";
+                if (data.duties && data.duties.length > 0) {
+                    dutyListHTML = '<ul class="tooltip-duty-list">' + 
+                        data.duties.map(d => `<li><strong>${d.matchHeader}:</strong> ${d.roles.join(', ')}</li>`).join('') + 
+                        '</ul>';
+                } else {
+                    dutyListHTML = `<div style="color: #aaa;">${translations[currentLang].noDutiesAssigned}</div>`;
+                }
 
                 barsHTML += `
                     <div class="volunteer-bar-row">
-                        <div class="volunteer-name-label" title="${name}">${name}</div>
+                        <div class="volunteer-name-label" onclick="toggleVolunteerTooltip(event, '${tooltipId}')">
+                            ${name}
+                        </div>
+                        <div class="custom-volunteer-tooltip" id="${tooltipId}">
+                            <span class="tooltip-title">${translations[currentLang].scheduleFor} ${name}</span>
+                            ${dutyListHTML}
+                        </div>
                         <div class="volunteer-bar-track">
-                            <div class="bar-segment ref-segment" style="width: ${refPercent}%;" title="Referee: ${data.ref} pts"></div>
-                            <div class="bar-segment other-segment" style="width: ${otherPercent}%;" title="Other roles: ${data.other} pts"></div>
+                            <div class="bar-segment ref-segment" style="width: ${refPercent}%;"></div>
+                            <div class="bar-segment other-segment" style="width: ${otherPercent}%;"></div>
                         </div>
                         <div class="volunteer-score-val">${data.total} ${translations[currentLang].pointsSuffix}</div>
                     </div>
