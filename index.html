@@ -427,7 +427,6 @@
             display: block;
         }
 
-        /* Desktop Hover state */
         @media (hover: hover) and (pointer: fine) {
             .volunteer-bar-row:hover .custom-volunteer-tooltip {
                 display: block;
@@ -495,7 +494,6 @@
             font-size: 0.85rem;
         }
 
-        /* Phone & Tablet View Adjustments */
         @media (max-width: 768px) {
             .calendar-responsive-wrapper {
                 padding-bottom: 120%;
@@ -814,9 +812,9 @@
 
         function getValueIgnoreCase(row, keyName) {
             if (!row) return "";
-            const targetKey = keyName.toLowerCase().replace(/[\s_-]/g, '');
+            const targetKey = keyName.toLowerCase().replace(/[\s_\-\/\.]/g, '');
             for (let key in row) {
-                if (key.toLowerCase().replace(/[\s_-]/g, '') === targetKey) {
+                if (key.toLowerCase().replace(/[\s_\-\/\.]/g, '') === targetKey) {
                     return row[key];
                 }
             }
@@ -891,7 +889,7 @@
         }
 
         function isValueEmptyOrDash(val) {
-            if (!val) return true;
+            if (val === undefined || val === null) return true;
             const str = String(val).trim();
             return str === "" || str === "--" || str === "—" || str === "-" || str.toLowerCase() === "n/a" || str.toLowerCase() === "null";
         }
@@ -960,7 +958,6 @@
             }
         }
 
-        // Close tooltips when tapping outside
         document.addEventListener('click', function() {
             document.querySelectorAll('.custom-volunteer-tooltip').forEach(tp => {
                 tp.classList.remove('active');
@@ -970,7 +967,6 @@
         function renderVolunteerScoreBars(rows) {
             const volunteerStats = {};
 
-            // 1. Gather all recognized kids from columns J-O
             rows.forEach(row => {
                 const kidName = getValueIgnoreCase(row, 'Kid');
                 if (kidName && String(kidName).trim() !== "" && String(kidName).trim() !== "undefined") {
@@ -981,7 +977,6 @@
                 }
             });
 
-            // 2. Record scores and individual duties for each volunteer
             rows.forEach(row => {
                 let gameVal = getValueIgnoreCase(row, 'Game');
                 if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Match');
@@ -993,7 +988,6 @@
                 const dateVal = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
                 const matchHeader = `${translations[currentLang].thVolGame} ${gameStr} (${dateVal})`;
 
-                // Helper to register duty
                 const addDuty = (name, roleStr, points, isRef) => {
                     if (!volunteerStats[name]) {
                         volunteerStats[name] = { ref: 0, other: 0, total: 0, duties: [] };
@@ -1005,7 +999,6 @@
                     }
                     volunteerStats[name].total += points;
 
-                    // Group duties by match
                     let dutyEntry = volunteerStats[name].duties.find(d => d.matchHeader === matchHeader);
                     if (!dutyEntry) {
                         dutyEntry = { matchHeader, roles: [] };
@@ -1050,7 +1043,6 @@
                 const otherPercent = (data.other / maxPoints) * 100;
                 const tooltipId = `volunteer-tp-${idx}`;
 
-                // Construct tooltip duty list
                 let dutyListHTML = "";
                 if (data.duties && data.duties.length > 0) {
                     dutyListHTML = '<ul class="tooltip-duty-list">' + 
@@ -1156,49 +1148,108 @@
                 if (!response.ok) throw new Error(`Failed to fetch Matches DB Excel file at ${matchesDbFilePath}`);
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const rawRows = XLSX.utils.sheet_to_json(worksheet);
+                
+                // 1. Target "MatchesDB" worksheet
+                const targetSheetName = workbook.SheetNames.find(s => s.toLowerCase() === 'matchesdb') || workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[targetSheetName];
+                
+                // Read as 2D array
+                const rawSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
+                // 2. Scan Column A for '#'
+                let headerRowIndex = -1;
+                for (let r = 0; r < rawSheetData.length; r++) {
+                    const firstCell = String(rawSheetData[r][0] || "").trim();
+                    if (firstCell === '#' || firstCell.toLowerCase() === 'game' || firstCell.toLowerCase() === 'match') {
+                        headerRowIndex = r;
+                        break;
+                    }
+                }
+
+                if (headerRowIndex === -1) {
+                    console.warn("Could not locate '#' header row in MatchesDB. Falling back to row 0.");
+                    headerRowIndex = 0;
+                }
+
+                const headers = rawSheetData[headerRowIndex].map(h => String(h || "").trim());
                 const matches = [];
 
-                rawRows.forEach(row => {
-                    const formattedDate = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
-                    const opponent = String(getValueIgnoreCase(row, 'Opponent') || getValueIgnoreCase(row, 'Tegenstander') || "").trim();
-                    const league = String(getValueIgnoreCase(row, 'League') || getValueIgnoreCase(row, 'Competition') || getValueIgnoreCase(row, 'Competitie') || "").trim();
-                    const rawNumber = String(getValueIgnoreCase(row, 'Game') || getValueIgnoreCase(row, 'Match') || getValueIgnoreCase(row, 'Number') || getValueIgnoreCase(row, '#') || "").trim();
-                    
-                    if (!formattedDate && !opponent && !league && !rawNumber) {
-                        return;
+                // 3. Process matches down until the first empty row in Column A
+                for (let r = headerRowIndex + 1; r < rawSheetData.length; r++) {
+                    const rowArray = rawSheetData[r];
+                    if (!rowArray) break;
+
+                    const colA = String(rowArray[0] || "").trim();
+                    // Stop processing immediately when Column A is blank
+                    if (!colA || colA === "" || colA === "undefined" || colA === "null") {
+                        break;
                     }
 
-                    const matchType = getValueIgnoreCase(row, 'MatchType') || getValueIgnoreCase(row, 'Type') || "Home";
-                    let address = getValueIgnoreCase(row, 'Address') || getValueIgnoreCase(row, 'Location') || getValueIgnoreCase(row, 'Locatie') || "";
+                    const rowObj = {};
+                    headers.forEach((h, colIdx) => {
+                        if (h) rowObj[h] = rowArray[colIdx];
+                    });
+
+                    const rawNumber = colA;
+                    const formattedDate = formatExcelDate(getValueIgnoreCase(rowObj, 'Date') || getValueIgnoreCase(rowObj, 'Datum'));
+                    const opponent = String(getValueIgnoreCase(rowObj, 'Opponent') || getValueIgnoreCase(rowObj, 'Tegenstander') || "").trim();
+                    const league = String(getValueIgnoreCase(rowObj, 'League') || getValueIgnoreCase(rowObj, 'Competition') || getValueIgnoreCase(rowObj, 'Competitie') || "").trim();
                     
-                    if (matchType.toString().toLowerCase() === "home" && !address) {
+                    // Match type determination: prioritize H/A column
+                    let haVal = String(getValueIgnoreCase(rowObj, 'H/A') || getValueIgnoreCase(rowObj, 'HA') || "").trim().toUpperCase();
+                    let matchType = "Home";
+                    
+                    if (haVal === 'A' || haVal === 'AWAY') {
+                        matchType = "Away";
+                    } else if (haVal === 'H' || haVal === 'HOME') {
+                        matchType = "Home";
+                    } else if (league.toLowerCase().includes('kick-off') || league.toLowerCase().includes('tournooi') || league.toLowerCase().includes('tournament')) {
+                        matchType = "Tournament";
+                    } else if (league.toLowerCase().includes('friendly') || league.toLowerCase().includes('oefen')) {
+                        matchType = "Friendly";
+                    }
+
+                    let address = getValueIgnoreCase(rowObj, 'Address') || getValueIgnoreCase(rowObj, 'Location') || getValueIgnoreCase(rowObj, 'Locatie') || "";
+                    
+                    // Fallback to home venue whenever it's a Home match and address is blank
+                    if (matchType.toLowerCase() === "home" && (!address || address.trim() === "")) {
                         address = "Escapade 5, Amstelveen";
                     }
 
-                    const rawTime = getValueIgnoreCase(row, 'Kickoff') || 
-                                    getValueIgnoreCase(row, 'KickoffTime') || 
-                                    getValueIgnoreCase(row, 'Kick-off') || 
-                                    getValueIgnoreCase(row, 'Time') || 
-                                    getValueIgnoreCase(row, 'Tijd') || 
-                                    getValueIgnoreCase(row, 'Aanvang');
+                    const rawTime = getValueIgnoreCase(rowObj, 'Kickoff') || 
+                                    getValueIgnoreCase(rowObj, 'KickoffTime') || 
+                                    getValueIgnoreCase(rowObj, 'Kick-off') || 
+                                    getValueIgnoreCase(rowObj, 'Time') || 
+                                    getValueIgnoreCase(rowObj, 'Tijd') || 
+                                    getValueIgnoreCase(rowObj, 'Aanvang');
+
+                    // Score handling
+                    const scoredVal = getValueIgnoreCase(rowObj, 'Scored');
+                    const concededVal = getValueIgnoreCase(rowObj, 'Conceded');
+                    let scoreStr = getValueIgnoreCase(rowObj, 'Score') || getValueIgnoreCase(rowObj, 'Uitslag');
+
+                    if (!isValueEmptyOrDash(scoredVal) && !isValueEmptyOrDash(concededVal)) {
+                        scoreStr = `${Math.round(Number(scoredVal))}-${Math.round(Number(concededVal))}`;
+                    } else if (isValueEmptyOrDash(scoreStr)) {
+                        scoreStr = "-";
+                    }
 
                     matches.push({
                         number: rawNumber,
-                        q: String(getValueIgnoreCase(row, 'Q') || "").trim(),
+                        q: String(getValueIgnoreCase(rowObj, 'Q') || "").trim(),
                         league: league,
                         date: formattedDate,
                         kickoffTime: formatExcelTime(rawTime),
                         address: String(address).trim(),
                         opponent: opponent,
                         matchType: String(matchType).trim(),
-                        score: String(getValueIgnoreCase(row, 'Score') || getValueIgnoreCase(row, 'Uitslag') || "-").trim(),
-                        url: String(getValueIgnoreCase(row, 'URL') || getValueIgnoreCase(row, 'Url') || getValueIgnoreCase(row, 'Link') || "").trim()
+                        score: String(scoreStr).trim(),
+                        scored: scoredVal,
+                        conceded: concededVal,
+                        result: String(getValueIgnoreCase(rowObj, 'W/D/L') || getValueIgnoreCase(rowObj, 'Result') || "").trim().toUpperCase(),
+                        url: String(getValueIgnoreCase(rowObj, 'URL') || getValueIgnoreCase(rowObj, 'Url') || getValueIgnoreCase(rowObj, 'Link') || "").trim()
                     });
-                });
+                }
 
                 return { matches: matches };
             } catch (error) {
@@ -1239,10 +1290,10 @@
                         gf += ourGoals;
                         ga += opponentGoals;
 
-                        if (ourGoals > opponentGoals) {
+                        if (ourGoals > opponentGoals || match.result === 'W') {
                             wins++;
                             styledScore = `<span class="score-win">${scoreText}</span>`;
-                        } else if (ourGoals < opponentGoals) {
+                        } else if (ourGoals < opponentGoals || match.result === 'L') {
                             losses++;
                             styledScore = `<span class="score-lose">${scoreText}</span>`;
                         } else {
