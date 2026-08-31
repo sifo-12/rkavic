@@ -248,16 +248,23 @@
             display: block;
         }
 
-        /* Adaptive Calendar Iframe */
+        /* Adaptive Calendar Iframe & Placeholder */
         .calendar-responsive-wrapper {
             position: relative;
             width: 100%;
-            height: 0;
-            padding-bottom: clamp(65%, 75vw, 120%);
+            min-height: 250px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             background: #fff;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-responsive-wrapper.has-iframe {
+            height: 0;
+            padding-bottom: clamp(65%, 75vw, 120%);
         }
 
         .calendar-responsive-wrapper iframe {
@@ -267,6 +274,13 @@
             width: 100%;
             height: 100%;
             border: 0;
+        }
+
+        .calendar-placeholder-text {
+            color: #777;
+            font-style: italic;
+            padding: 2rem;
+            text-align: center;
         }
 
         /* Touch-Friendly Responsive Tables */
@@ -374,7 +388,6 @@
             position: relative;
         }
 
-        /* Interactive Volunteer Name with Tooltip */
         .volunteer-name-label {
             width: clamp(85px, 22vw, 125px);
             font-weight: 600;
@@ -393,7 +406,6 @@
             text-decoration-color: var(--primary-orange);
         }
 
-        /* Tooltip Card Styling */
         .custom-volunteer-tooltip {
             position: absolute;
             left: 0;
@@ -495,9 +507,6 @@
         }
 
         @media (max-width: 768px) {
-            .calendar-responsive-wrapper {
-                padding-bottom: 120%;
-            }
             .match-details-grid {
                 grid-template-columns: 1fr;
                 gap: 0.85rem;
@@ -566,11 +575,8 @@
         <!-- 2. Team Calendar -->
         <div class="section-card">
             <h2>📅 <span id="lbl-calendar-title">Team Calendar</span></h2>
-            <div class="calendar-responsive-wrapper">
-                <iframe src="https://calendar.google.com/calendar/embed?src=0t90kfjjedi8s0gl9vvikomrc21e6sg7%40import.calendar.google.com&src=f5e711bd43e3c8c89999e060dfafac8d35792c9575144b67255365f5bd5cdaa8%40group.calendar.google.com&ctz=Europe%2FAmsterdam&wkst=2" 
-                        frameborder="0" 
-                        scrolling="no">
-                </iframe>
+            <div class="calendar-responsive-wrapper" id="calendar-wrapper-box">
+                <!-- Injected dynamically per team -->
             </div>
         </div>
 
@@ -665,6 +671,7 @@
                 volunteers: "Assigned Volunteers",
                 statsTitle: "Season Statistics Dashboard",
                 calendarTitle: "Team Calendar",
+                calendarPlaceholder: "No calendar connected for this team yet.",
                 played: "Played",
                 wins: "Wins",
                 ties: "Ties",
@@ -713,6 +720,7 @@
                 volunteers: "Toegewezen Vrijwilligers",
                 statsTitle: "Seizoensstatistieken Dashboard",
                 calendarTitle: "Team Kalender",
+                calendarPlaceholder: "Nog geen kalender gekoppeld voor dit team.",
                 played: "Gespeeld",
                 wins: "Gewonnen",
                 ties: "Gelijk",
@@ -767,6 +775,12 @@
                 'Tournament': 'Toernooi',
                 'Friendly': 'Oefenwedstrijd'
             }
+        };
+
+        // Team Calendar URL Mapping
+        const teamCalendars = {
+            "JO12-1": "https://calendar.google.com/calendar/embed?src=0t90kfjjedi8s0gl9vvikomrc21e6sg7%40import.calendar.google.com&src=f5e711bd43e3c8c89999e060dfafac8d35792c9575144b67255365f5bd5cdaa8%40group.calendar.google.com&ctz=Europe%2FAmsterdam&wkst=2"
+            // "JO11-1": "Add JO11-1 Calendar Embed Link Here"
         };
 
         let currentLang = 'en'; 
@@ -892,6 +906,19 @@
             if (val === undefined || val === null) return true;
             const str = String(val).trim();
             return str === "" || str === "--" || str === "—" || str === "-" || str.toLowerCase() === "n/a" || str.toLowerCase() === "null";
+        }
+
+        function renderCalendar() {
+            const wrapper = document.getElementById("calendar-wrapper-box");
+            const calUrl = teamCalendars[currentTeam];
+
+            if (calUrl && calUrl.trim() !== "") {
+                wrapper.className = "calendar-responsive-wrapper has-iframe";
+                wrapper.innerHTML = `<iframe src="${calUrl}" frameborder="0" scrolling="no"></iframe>`;
+            } else {
+                wrapper.className = "calendar-responsive-wrapper";
+                wrapper.innerHTML = `<div class="calendar-placeholder-text">${translations[currentLang].calendarPlaceholder}</div>`;
+            }
         }
 
         function buildUpcomingVolunteersListHTML(excelRow) {
@@ -1116,6 +1143,8 @@
             document.getElementById("th-vol-lemonade").innerText = t.thVolLemonade;
             document.getElementById("th-vol-balls").innerText = t.thVolBalls;
 
+            renderCalendar();
+
             if (globalMatchData) {
                 renderUI(globalMatchData);
             }
@@ -1149,14 +1178,10 @@
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
                 
-                // 1. Target "MatchesDB" worksheet
                 const targetSheetName = workbook.SheetNames.find(s => s.toLowerCase() === 'matchesdb') || workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[targetSheetName];
-                
-                // Read as 2D array
                 const rawSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
-                // 2. Scan Column A for '#'
                 let headerRowIndex = -1;
                 for (let r = 0; r < rawSheetData.length; r++) {
                     const firstCell = String(rawSheetData[r][0] || "").trim();
@@ -1174,13 +1199,11 @@
                 const headers = rawSheetData[headerRowIndex].map(h => String(h || "").trim());
                 const matches = [];
 
-                // 3. Process matches down until the first empty row in Column A
                 for (let r = headerRowIndex + 1; r < rawSheetData.length; r++) {
                     const rowArray = rawSheetData[r];
                     if (!rowArray) break;
 
                     const colA = String(rowArray[0] || "").trim();
-                    // Stop processing immediately when Column A is blank
                     if (!colA || colA === "" || colA === "undefined" || colA === "null") {
                         break;
                     }
@@ -1195,7 +1218,6 @@
                     const opponent = String(getValueIgnoreCase(rowObj, 'Opponent') || getValueIgnoreCase(rowObj, 'Tegenstander') || "").trim();
                     const league = String(getValueIgnoreCase(rowObj, 'League') || getValueIgnoreCase(rowObj, 'Competition') || getValueIgnoreCase(rowObj, 'Competitie') || "").trim();
                     
-                    // Match type determination: prioritize H/A column
                     let haVal = String(getValueIgnoreCase(rowObj, 'H/A') || getValueIgnoreCase(rowObj, 'HA') || "").trim().toUpperCase();
                     let matchType = "Home";
                     
@@ -1211,7 +1233,6 @@
 
                     let address = getValueIgnoreCase(rowObj, 'Address') || getValueIgnoreCase(rowObj, 'Location') || getValueIgnoreCase(rowObj, 'Locatie') || "";
                     
-                    // Fallback to home venue whenever it's a Home match and address is blank
                     if (matchType.toLowerCase() === "home" && (!address || address.trim() === "")) {
                         address = "Escapade 5, Amstelveen";
                     }
@@ -1223,7 +1244,6 @@
                                     getValueIgnoreCase(rowObj, 'Tijd') || 
                                     getValueIgnoreCase(rowObj, 'Aanvang');
 
-                    // Score handling
                     const scoredVal = getValueIgnoreCase(rowObj, 'Scored');
                     const concededVal = getValueIgnoreCase(rowObj, 'Conceded');
                     let scoreStr = getValueIgnoreCase(rowObj, 'Score') || getValueIgnoreCase(rowObj, 'Uitslag');
@@ -1422,6 +1442,8 @@
         document.addEventListener("DOMContentLoaded", async function() {
             document.getElementById("header-team-name").innerText = currentTeam;
             document.getElementById("banner-team-name").innerText = currentTeam;
+
+            renderCalendar();
 
             const [volunteers, matchesData] = await Promise.all([
                 loadExcelVolunteers(),
