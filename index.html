@@ -328,6 +328,16 @@
             font-weight: bold;
         }
 
+        /* Interactive Clickable Match Rows */
+        tr.clickable-match-row {
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        tr.clickable-match-row:hover {
+            background-color: #fffaed;
+        }
+
         .score-win { color: var(--win-green); font-weight: bold; }
         .score-lose { color: var(--lose-red); font-weight: bold; }
         .score-tie { color: var(--tie-gray); font-weight: bold; }
@@ -416,7 +426,7 @@
             border-radius: 6px;
             font-size: 0.82rem;
             line-height: 1.4;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
             z-index: 1000;
             min-width: 210px;
             max-width: 320px;
@@ -495,6 +505,80 @@
             text-align: right;
             font-size: 0.85rem;
             color: var(--black);
+        }
+
+        /* Floating Match Modal Styles */
+        .match-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(3px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .match-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .match-modal-card {
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border-top: 5px solid var(--primary-orange);
+            transform: translateY(15px);
+            transition: transform 0.2s ease;
+            padding: clamp(1.2rem, 3.5vw, 2rem);
+        }
+
+        .match-modal-overlay.active .match-modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #333;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: #e0e0e0;
+            color: #000;
+        }
+
+        .modal-header-title {
+            margin: 0 0 1rem 0;
+            font-size: 1.3rem;
+            color: var(--black);
+            padding-right: 35px;
         }
 
         footer {
@@ -655,6 +739,38 @@
 
     </div>
 
+    <!-- Floating Match Details Modal -->
+    <div class="match-modal-overlay" id="match-modal-overlay" onclick="closeMatchModal(event)">
+        <div class="match-modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeMatchModal()">✕</button>
+            <h3 class="modal-header-title">⚽ <span id="modal-match-header">Match Details</span></h3>
+            <div class="upcoming-match-box" style="border: none; padding: 0;">
+                <span id="modal-match-badge" class="match-badge">LOADING...</span>
+                <div class="match-details-grid">
+                    <div class="match-info-item">
+                        <strong id="lbl-modal-opp-loc">Opponent & Location</strong>
+                        <span id="modal-opponent" style="font-weight: bold; font-size: 1.05rem;"></span> <br> 
+                        <span id="modal-location"></span>
+                        <div id="modal-url-container" style="margin-top: 4px;"></div>
+                    </div>
+                    <div class="match-info-item">
+                        <strong id="lbl-modal-timings">Timings</strong>
+                        <span id="lbl-modal-kickoff">Kick-off</span>: <span id="modal-kickoff"></span> <br> 
+                        <span id="lbl-modal-meetup">Meet-up</span>: <span id="modal-meetup"></span>
+                    </div>
+                    <div class="match-info-item">
+                        <strong><span id="lbl-modal-jersey">Jersey Color</span></strong>
+                        <div id="modal-jersey-container" style="margin-top: 4px; display: flex; gap: 5px;"></div>
+                    </div>
+                    <div class="match-info-item">
+                        <strong id="lbl-modal-volunteers">Assigned Volunteers</strong>
+                        <div id="modal-volunteers" style="font-size: 0.92rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>© 2026 RKAVIC Team Management. All rights reserved.</p>
     </footer>
@@ -688,6 +804,7 @@
                 noPointsYet: "No volunteer points registered.",
                 noDutiesAssigned: "No assigned duties yet",
                 scheduleFor: "Schedule for",
+                matchDetails: "Match Details",
                 thQ: "Q",
                 thLeague: "Competition",
                 thDate: "Date",
@@ -737,6 +854,7 @@
                 noPointsYet: "Geen vrijwilligerspunten geregistreerd.",
                 noDutiesAssigned: "Nog geen taken ingedeeld",
                 scheduleFor: "Schema voor",
+                matchDetails: "Wedstrijd Details",
                 thQ: "K",
                 thLeague: "Competitie",
                 thDate: "Datum",
@@ -777,15 +895,20 @@
             }
         };
 
-        // Team Calendar URL Mapping
+        // Embedded Calendar display
         const teamCalendars = {
             "JO12-1": "https://calendar.google.com/calendar/embed?src=0t90kfjjedi8s0gl9vvikomrc21e6sg7%40import.calendar.google.com&src=f5e711bd43e3c8c89999e060dfafac8d35792c9575144b67255365f5bd5cdaa8%40group.calendar.google.com&ctz=Europe%2FAmsterdam&wkst=2"
-            // "JO11-1": "Add JO11-1 Calendar Embed Link Here"
+        };
+
+        // Direct Voetbal.nl / Sportlink iCal feed URL
+        const teamICalFeeds = {
+            "JO12-1": "https://data.sportlink.com/ical-team?token=8t0psa0jb6ebr53otvhetvlu2e"
         };
 
         let currentLang = 'en'; 
         let globalExcelRows = [];
         let globalMatchData = null;
+        let globalCalendarEvents = [];
 
         const urlParams = new URLSearchParams(window.location.search);
         const currentTeam = urlParams.get('team') || "JO12-1"; 
@@ -863,26 +986,22 @@
 
         function formatExcelTime(timeVal) {
             if (!timeVal && timeVal !== 0) return "";
-            
             if (timeVal instanceof Date) {
                 const hours = String(timeVal.getHours()).padStart(2, '0');
                 const minutes = String(timeVal.getMinutes()).padStart(2, '0');
                 return `${hours}:${minutes}`;
             }
-            
             if (typeof timeVal === 'number') {
                 const totalSeconds = Math.round(timeVal * 86400);
                 const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
                 const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
                 return `${hours}:${minutes}`;
             }
-            
             const str = String(timeVal).trim();
             if (str.includes(":")) {
                 const parts = str.split(":");
                 return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
             }
-            
             return str;
         }
 
@@ -921,6 +1040,134 @@
             }
         }
 
+        // Live Voetbal.nl / Sportlink iCal Feed Parser
+        async function loadLiveCalendarEvents() {
+            const feedUrl = teamICalFeeds[currentTeam];
+            if (!feedUrl) return [];
+
+            const cleanUrl = feedUrl.replace(/^webcal:\/\//i, 'https://');
+            
+            // Try direct fetch first, then CORS proxy fallbacks
+            const fetchEndpoints = [
+                cleanUrl,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(cleanUrl)}`
+            ];
+
+            let icsData = null;
+            for (let endpoint of fetchEndpoints) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+                    const response = await fetch(endpoint, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const text = await response.text();
+                        if (text && text.includes("BEGIN:VCALENDAR")) {
+                            icsData = text;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    // Try next endpoint
+                }
+            }
+
+            if (!icsData) {
+                console.warn("Could not retrieve live Voetbal.nl feed. Using scheduled Excel times.");
+                return [];
+            }
+
+            try {
+                const events = [];
+                const vevents = icsData.split("BEGIN:VEVENT");
+
+                for (let i = 1; i < vevents.length; i++) {
+                    const block = vevents[i].split("END:VEVENT")[0];
+                    let dtstart = "";
+                    let summary = "";
+                    let location = "";
+
+                    const lines = block.split(/\r?\n/);
+                    for (let line of lines) {
+                        if (line.startsWith("DTSTART")) {
+                            dtstart = line.substring(line.indexOf(":") + 1).trim();
+                        } else if (line.startsWith("SUMMARY")) {
+                            summary = line.substring(line.indexOf(":") + 1).trim();
+                        } else if (line.startsWith("LOCATION")) {
+                            location = line.substring(line.indexOf(":") + 1).trim();
+                        }
+                    }
+
+                    if (dtstart) {
+                        let dateStr = "";
+                        let timeStr = "";
+
+                        if (dtstart.includes("T")) {
+                            const datePart = dtstart.split("T")[0];
+                            const timePart = dtstart.split("T")[1];
+                            const y = parseInt(datePart.substring(0, 4), 10);
+                            const m = parseInt(datePart.substring(4, 6), 10);
+                            const d = parseInt(datePart.substring(6, 8), 10);
+                            const hh = parseInt(timePart.substring(0, 2), 10);
+                            const mm = parseInt(timePart.substring(2, 4), 10);
+
+                            if (dtstart.endsWith("Z")) {
+                                const utcDate = new Date(Date.UTC(y, m - 1, d, hh, mm));
+                                const amsDateStr = utcDate.toLocaleString("en-CA", { timeZone: "Europe/Amsterdam", hour12: false });
+                                if (amsDateStr.includes(",")) {
+                                    const [amsDate, amsTime] = amsDateStr.split(",");
+                                    dateStr = amsDate.trim();
+                                    const timeParts = amsTime.trim().split(":");
+                                    timeStr = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
+                                } else {
+                                    dateStr = `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                                    timeStr = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+                                }
+                            } else {
+                                dateStr = `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                                timeStr = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+                            }
+                        } else {
+                            const y = dtstart.substring(0, 4);
+                            const m = dtstart.substring(4, 6);
+                            const d = dtstart.substring(6, 8);
+                            dateStr = `${y}-${m}-${d}`;
+                        }
+
+                        events.push({
+                            date: dateStr,
+                            time: timeStr,
+                            summary: summary.replace(/\\,/g, ',').trim(),
+                            location: location.replace(/\\,/g, ',').trim()
+                        });
+                    }
+                }
+                console.log(`Live Voetbal.nl schedule loaded successfully (${events.length} matches):`, events);
+                return events;
+            } catch (err) {
+                console.error("Error parsing Voetbal.nl feed:", err);
+                return [];
+            }
+        }
+
+        function getLiveUpdatedTime(matchDate, matchOpponent, excelTime) {
+            if (!globalCalendarEvents || globalCalendarEvents.length === 0) return excelTime;
+
+            const dateMatches = globalCalendarEvents.filter(ev => ev.date === matchDate && ev.time);
+            if (dateMatches.length === 1) {
+                return dateMatches[0].time;
+            } else if (dateMatches.length > 1 && matchOpponent) {
+                const oppClean = matchOpponent.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const best = dateMatches.find(ev => ev.summary.toLowerCase().replace(/[^a-z0-9]/g, '').includes(oppClean));
+                if (best) return best.time;
+                return dateMatches[0].time;
+            }
+            return excelTime;
+        }
+
         function buildUpcomingVolunteersListHTML(excelRow) {
             if (!excelRow) return translations[currentLang].noStaff;
             let lines = [];
@@ -934,6 +1181,7 @@
         }
 
         function renderVolunteersTable(rows) {
+            if (!rows || rows.length === 0) return;
             let html = "";
             rows.forEach(row => {
                 let gameVal = getValueIgnoreCase(row, 'Game');
@@ -941,10 +1189,7 @@
                 if (gameVal === "") gameVal = getValueIgnoreCase(row, 'Number');
                 
                 const gameStr = String(gameVal || "").trim();
-                
-                if (!gameStr || gameStr === "undefined" || gameStr === "null") {
-                    return;
-                }
+                if (!gameStr || gameStr === "undefined" || gameStr === "null") return;
 
                 const dateVal = formatExcelDate(getValueIgnoreCase(row, 'Date') || getValueIgnoreCase(row, 'Datum'));
                 const locVal = getValueIgnoreCase(row, 'Location') || getValueIgnoreCase(row, 'Locatie') || "";
@@ -991,7 +1236,85 @@
             });
         });
 
+        function openMatchModal(matchNumber) {
+            if (!globalMatchData || !globalMatchData.matches) return;
+            const match = globalMatchData.matches.find(m => String(m.number).trim() === String(matchNumber).trim());
+            if (!match) return;
+
+            const modalOverlay = document.getElementById("match-modal-overlay");
+            const modalHeader = document.getElementById("modal-match-header");
+            const badgeElement = document.getElementById("modal-match-badge");
+            const opponentElement = document.getElementById("modal-opponent");
+            const locationElement = document.getElementById("modal-location");
+            const urlContainer = document.getElementById("modal-url-container");
+            const kickoffElement = document.getElementById("modal-kickoff");
+            const meetupElement = document.getElementById("modal-meetup");
+            const jerseyContainer = document.getElementById("modal-jersey-container");
+            const volunteersElement = document.getElementById("modal-volunteers");
+
+            const finalKickoff = getLiveUpdatedTime(match.date, match.opponent, match.kickoffTime);
+
+            modalHeader.innerText = `${translations[currentLang].matchDetails} - ${match.date}`;
+            kickoffElement.innerText = finalKickoff || "TBD";
+            meetupElement.innerText = calculateMeetUpTime(finalKickoff);
+
+            const excelVolRow = globalExcelRows.find(row => getMatchNumberFromRow(row) === String(match.number).trim());
+            volunteersElement.innerHTML = buildUpcomingVolunteersListHTML(excelVolRow);
+
+            if (match.url && match.url.trim() !== "") {
+                urlContainer.innerHTML = `<a href="${match.url.trim()}" target="_blank" class="extra-event-link">${translations[currentLang].eventLink}</a>`;
+            } else {
+                urlContainer.innerHTML = "";
+            }
+
+            const typeLower = (match.matchType || "").toLowerCase();
+            let addressText = match.address || "";
+
+            if (typeLower === "home") {
+                badgeElement.innerText = translations[currentLang].homeGame;
+                badgeElement.className = "match-badge home-badge";
+                jerseyContainer.innerHTML = orangeJerseySVG;
+                opponentElement.innerText = match.opponent;
+                if (!addressText) addressText = "Escapade 5, Amstelveen";
+                locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 RKAVIC Amstelveen (${addressText})</a>`;
+            } else if (typeLower === "away") {
+                badgeElement.innerText = translations[currentLang].awayGame;
+                badgeElement.className = "match-badge away-badge";
+                jerseyContainer.innerHTML = blackJerseySVG;
+                opponentElement.innerText = match.opponent;
+                locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
+            } else if (typeLower === "tournament") {
+                badgeElement.innerText = translations[currentLang].tournamentGame;
+                badgeElement.className = "match-badge away-badge";
+                jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG;
+                opponentElement.innerText = match.league || "";
+                locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
+            } else {
+                badgeElement.innerText = translations[currentLang].friendlyGame;
+                badgeElement.className = "match-badge away-badge";
+                jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG;
+                opponentElement.innerText = match.opponent || match.league || "";
+                locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
+            }
+
+            modalOverlay.classList.add("active");
+        }
+
+        function closeMatchModal(event) {
+            const modalOverlay = document.getElementById("match-modal-overlay");
+            if (!event || event.target === modalOverlay) {
+                modalOverlay.classList.remove("active");
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                document.getElementById("match-modal-overlay").classList.remove("active");
+            }
+        });
+
         function renderVolunteerScoreBars(rows) {
+            if (!rows || rows.length === 0) return;
             const volunteerStats = {};
 
             rows.forEach(row => {
@@ -1035,24 +1358,16 @@
                 };
 
                 const refVal = getValueIgnoreCase(row, 'Referee');
-                if (!isValueEmptyOrDash(refVal)) {
-                    addDuty(String(refVal).trim(), 'Referee', 2, true);
-                }
+                if (!isValueEmptyOrDash(refVal)) addDuty(String(refVal).trim(), 'Referee', 2, true);
 
                 const pitchVal = getValueIgnoreCase(row, 'Pitch Prep');
-                if (!isValueEmptyOrDash(pitchVal)) {
-                    addDuty(String(pitchVal).trim(), 'Pitch Prep', 1, false);
-                }
+                if (!isValueEmptyOrDash(pitchVal)) addDuty(String(pitchVal).trim(), 'Pitch Prep', 1, false);
 
                 const lemVal = getValueIgnoreCase(row, 'Lemonade');
-                if (!isValueEmptyOrDash(lemVal)) {
-                    addDuty(String(lemVal).trim(), 'Lemonade', 1, false);
-                }
+                if (!isValueEmptyOrDash(lemVal)) addDuty(String(lemVal).trim(), 'Lemonade', 1, false);
 
                 const ballsVal = getValueIgnoreCase(row, 'Balls');
-                if (!isValueEmptyOrDash(ballsVal)) {
-                    addDuty(String(ballsVal).trim(), 'Balls', 1, false);
-                }
+                if (!isValueEmptyOrDash(ballsVal)) addDuty(String(ballsVal).trim(), 'Balls', 1, false);
             });
 
             const entries = Object.entries(volunteerStats);
@@ -1127,6 +1442,13 @@
             document.getElementById("lbl-legend-ref").innerText = t.legendRef;
             document.getElementById("lbl-legend-other").innerText = t.legendOther;
             
+            document.getElementById("lbl-modal-opp-loc").innerText = t.opponentLoc;
+            document.getElementById("lbl-modal-timings").innerText = t.timings;
+            document.getElementById("lbl-modal-kickoff").innerText = t.kickoff;
+            document.getElementById("lbl-modal-meetup").innerText = t.meetup;
+            document.getElementById("lbl-modal-jersey").innerText = t.jersey;
+            document.getElementById("lbl-modal-volunteers").innerText = t.volunteers;
+
             document.getElementById("th-q").innerText = t.thQ;
             document.getElementById("th-league").innerText = t.thLeague;
             document.getElementById("th-date").innerText = t.thDate;
@@ -1158,14 +1480,13 @@
             try {
                 const cacheBuster = `?t=${new Date().getTime()}`;
                 const response = await fetch(volunteersFilePath + cacheBuster);
-                if (!response.ok) throw new Error(`Failed to fetch Excel file at ${volunteersFilePath}`);
+                if (!response.ok) return [];
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 return XLSX.utils.sheet_to_json(worksheet);
             } catch (error) {
-                console.error("Error loading Volunteers Excel file:", error);
                 return [];
             }
         }
@@ -1174,7 +1495,7 @@
             try {
                 const cacheBuster = `?t=${new Date().getTime()}`;
                 const response = await fetch(matchesDbFilePath + cacheBuster);
-                if (!response.ok) throw new Error(`Failed to fetch Matches DB Excel file at ${matchesDbFilePath}`);
+                if (!response.ok) return { matches: [] };
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
                 
@@ -1191,10 +1512,7 @@
                     }
                 }
 
-                if (headerRowIndex === -1) {
-                    console.warn("Could not locate '#' header row in MatchesDB. Falling back to row 0.");
-                    headerRowIndex = 0;
-                }
+                if (headerRowIndex === -1) headerRowIndex = 0;
 
                 const headers = rawSheetData[headerRowIndex].map(h => String(h || "").trim());
                 const matches = [];
@@ -1232,7 +1550,6 @@
                     }
 
                     let address = getValueIgnoreCase(rowObj, 'Address') || getValueIgnoreCase(rowObj, 'Location') || getValueIgnoreCase(rowObj, 'Locatie') || "";
-                    
                     if (matchType.toLowerCase() === "home" && (!address || address.trim() === "")) {
                         address = "Escapade 5, Amstelveen";
                     }
@@ -1273,7 +1590,6 @@
 
                 return { matches: matches };
             } catch (error) {
-                console.error("Error loading Matches DB Excel file:", error);
                 return { matches: [] };
             }
         }
@@ -1289,7 +1605,7 @@
             let tableHTMLRows = "";
             let matchedRowData = null;
 
-            const sortedMatches = data.matches.sort((a, b) => {
+            const sortedMatches = (data && data.matches ? data.matches : []).sort((a, b) => {
                 if (!a.date) return 1;
                 if (!b.date) return -1;
                 return a.date.localeCompare(b.date);
@@ -1324,7 +1640,7 @@
                 }
 
                 const isCurrentMatch = matchedRowData && match.date === matchedRowData.date && match.number === matchedRowData.number;
-                const rowClass = isCurrentMatch ? ' class="highlighted-match-row"' : '';
+                const rowClass = isCurrentMatch ? ' class="highlighted-match-row clickable-match-row"' : ' class="clickable-match-row"';
 
                 let displayType = match.matchType;
                 if (currentLang === 'nl' && dynamicTranslations.typeNL[match.matchType]) {
@@ -1332,7 +1648,7 @@
                 }
 
                 tableHTMLRows += `
-                    <tr${rowClass}>
+                    <tr${rowClass} onclick="openMatchModal('${match.number}')" title="Click to view details">
                         <td>${match.number || "-"}</td>
                         <td>${match.q}</td>
                         <td>${match.league}</td>
@@ -1361,9 +1677,11 @@
                 const isTournament = typeLower === "tournament";
                 const isFriendly = typeLower === "friendly";
                 
+                const finalKickoff = getLiveUpdatedTime(matchedRowData.date, matchedRowData.opponent, matchedRowData.kickoffTime);
+
                 document.getElementById("target-match-date").innerText = matchedRowData.date;
-                document.getElementById("match-kickoff").innerText = matchedRowData.kickoffTime || "TBD";
-                document.getElementById("match-meetup").innerText = calculateMeetUpTime(matchedRowData.kickoffTime);
+                document.getElementById("match-kickoff").innerText = finalKickoff || "TBD";
+                document.getElementById("match-meetup").innerText = calculateMeetUpTime(finalKickoff);
 
                 const currentExcelMatch = globalExcelRows.find(row => {
                     return getMatchNumberFromRow(row) === String(matchedRowData.number).trim();
@@ -1396,34 +1714,19 @@
                     badgeElement.className = "match-badge away-badge";
                     jerseyContainer.innerHTML = blackJerseySVG;
                     opponentElement.innerText = matchedRowData.opponent;
-                    
-                    if (addressText) {
-                        locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
-                    } else {
-                        locationElement.innerText = "Address TBD";
-                    }
+                    locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
                 } else if (isTournament) {
                     badgeElement.innerText = translations[currentLang].tournamentGame;
                     badgeElement.className = "match-badge away-badge"; 
                     jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG; 
                     opponentElement.innerText = matchedRowData.league || ""; 
-                    
-                    if (addressText) {
-                        locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
-                    } else {
-                        locationElement.innerText = "Address TBD";
-                    }
+                    locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
                 } else if (isFriendly) {
                     badgeElement.innerText = translations[currentLang].friendlyGame;
                     badgeElement.className = "match-badge away-badge"; 
                     jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG; 
                     opponentElement.innerText = matchedRowData.opponent || matchedRowData.league || ""; 
-                    
-                    if (addressText) {
-                        locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>`;
-                    } else {
-                        locationElement.innerText = "Address TBD";
-                    }
+                    locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
                 }
             } else {
                 document.getElementById("target-match-date").innerText = translations[currentLang].noMatches;
@@ -1445,6 +1748,7 @@
 
             renderCalendar();
 
+            // 1. Instantly load and render Excel data
             const [volunteers, matchesData] = await Promise.all([
                 loadExcelVolunteers(),
                 loadExcelMatches()
@@ -1452,9 +1756,18 @@
 
             globalExcelRows = volunteers;
             globalMatchData = matchesData;
+
             renderUI(matchesData);
             renderVolunteersTable(volunteers);
             renderVolunteerScoreBars(volunteers);
+
+            // 2. Fetch live Voetbal.nl / Sportlink feed in background
+            loadLiveCalendarEvents().then(calendarEvents => {
+                if (calendarEvents && calendarEvents.length > 0) {
+                    globalCalendarEvents = calendarEvents;
+                    renderUI(globalMatchData); // Re-render with live Voetbal.nl kickoff times
+                }
+            });
         });
     </script>
 </body>
