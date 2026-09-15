@@ -913,19 +913,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const currentTeam = urlParams.get('team') || "JO12-1"; 
 
+        // RKAVIC Always wears Orange Jersey
         const orangeJerseySVG = `
             <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#ff8400" stroke="#1a1a1a" stroke-width="3"/>
                 <path d="M40,10 C45,18 55,18 60,10" fill="none" stroke="#1a1a1a" stroke-width="3"/>
-                <rect x="48" y="30" width="4" height="40" fill="#ffffff"/>
-                <rect x="38" y="30" width="4" height="40" fill="#ffffff"/>
-                <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
-            </svg>`;
-
-        const blackJerseySVG = `
-            <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M30,20 L40,10 L60,10 L70,20 L85,30 L75,45 L65,40 L65,85 L35,85 L35,40 L25,45 L15,30 Z" fill="#1a1a1a" stroke="#ffffff" stroke-width="3"/>
-                <path d="M40,10 C45,18 55,18 60,10" fill="none" stroke="#ffffff" stroke-width="3"/>
                 <rect x="48" y="30" width="4" height="40" fill="#ffffff"/>
                 <rect x="38" y="30" width="4" height="40" fill="#ffffff"/>
                 <rect x="58" y="30" width="4" height="40" fill="#ffffff"/>
@@ -1270,29 +1262,28 @@
             const typeLower = (match.matchType || "").toLowerCase();
             let addressText = match.address || "";
 
+            // RKAVIC always wears Orange Jersey
+            jerseyContainer.innerHTML = orangeJerseySVG;
+
             if (typeLower === "home") {
                 badgeElement.innerText = translations[currentLang].homeGame;
                 badgeElement.className = "match-badge home-badge";
-                jerseyContainer.innerHTML = orangeJerseySVG;
                 opponentElement.innerText = match.opponent;
                 if (!addressText) addressText = "Escapade 5, Amstelveen";
                 locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 RKAVIC Amstelveen (${addressText})</a>`;
             } else if (typeLower === "away") {
                 badgeElement.innerText = translations[currentLang].awayGame;
                 badgeElement.className = "match-badge away-badge";
-                jerseyContainer.innerHTML = blackJerseySVG;
                 opponentElement.innerText = match.opponent;
                 locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
             } else if (typeLower === "tournament") {
                 badgeElement.innerText = translations[currentLang].tournamentGame;
                 badgeElement.className = "match-badge away-badge";
-                jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG;
                 opponentElement.innerText = match.league || "";
                 locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
             } else {
                 badgeElement.innerText = translations[currentLang].friendlyGame;
                 badgeElement.className = "match-badge away-badge";
-                jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG;
                 opponentElement.innerText = match.opponent || match.league || "";
                 locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
             }
@@ -1702,29 +1693,28 @@
                     urlContainer.innerHTML = "";
                 }
 
+                // RKAVIC always wears Orange Jersey
+                jerseyContainer.innerHTML = orangeJerseySVG;
+
                 if (typeLower === "home") {
                     badgeElement.innerText = translations[currentLang].homeGame;
                     badgeElement.className = "match-badge home-badge";
-                    jerseyContainer.innerHTML = orangeJerseySVG;
                     opponentElement.innerText = matchedRowData.opponent;
                     if (!addressText) addressText = "Escapade 5, Amstelveen";
                     locationElement.innerHTML = `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 RKAVIC Amstelveen (${addressText})</a>`;
                 } else if (typeLower === "away") {
                     badgeElement.innerText = translations[currentLang].awayGame;
                     badgeElement.className = "match-badge away-badge";
-                    jerseyContainer.innerHTML = blackJerseySVG;
                     opponentElement.innerText = matchedRowData.opponent;
                     locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
                 } else if (isTournament) {
                     badgeElement.innerText = translations[currentLang].tournamentGame;
                     badgeElement.className = "match-badge away-badge"; 
-                    jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG; 
                     opponentElement.innerText = matchedRowData.league || ""; 
                     locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
                 } else if (isFriendly) {
                     badgeElement.innerText = translations[currentLang].friendlyGame;
                     badgeElement.className = "match-badge away-badge"; 
-                    jerseyContainer.innerHTML = orangeJerseySVG + blackJerseySVG; 
                     opponentElement.innerText = matchedRowData.opponent || matchedRowData.league || ""; 
                     locationElement.innerHTML = addressText ? `<a href="https://maps.google.com/?q=${encodeURIComponent(addressText)}" target="_blank" class="maps-link">📍 ${addressText}</a>` : "Address TBD";
                 }
